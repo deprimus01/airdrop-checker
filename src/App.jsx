@@ -10,7 +10,9 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { checkEligibility } from "./utils/checkEligibility";
+import { hasClaimed, claimTokens } from "./utils/airdrop";
 import EligibilityCard from "./components/EligibilityCard";
+import ClaimSection from "./components/ClaimSection";
 import CopyAddress from "./components/CopyAddress";
 import { SEPOLIA } from "./constants";
 
@@ -40,6 +42,9 @@ export default function App() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("idle"); // idle | checking | done
   const [result, setResult] = useState(null);
+  const [claimed, setClaimed] = useState(false);
+  const [claiming, setClaiming] = useState(false);
+  const [txHash, setTxHash] = useState("");
 
   const hasWallet = Boolean(window.ethereum);
   const onSepolia = chainId?.toLowerCase() === SEPOLIA.chainId;
@@ -114,6 +119,30 @@ export default function App() {
     }
   }
 
+  async function handleClaim() {
+    setError("");
+    setClaiming(true);
+    try {
+      const hash = await claimTokens(account);
+      setTxHash(hash);
+      setClaimed(true);
+    } catch (err) {
+      if (err.code === "ACTION_REJECTED" || err.info?.error?.code === 4001) {
+        setError("You rejected the transaction.");
+      } else if (err.revert?.name === "AlreadyClaimed") {
+        setClaimed(true);
+        setError("This wallet has already claimed.");
+      } else if (err.revert?.name === "InvalidProof") {
+        setError(
+          "Invalid proof. The allowlist may not match the deployed contract.",
+        );
+      } else {
+        setError(err.shortMessage || err.message);
+      }
+    }
+    setClaiming(false);
+  }
+
   // Auto-reconnect on page load if the site was already approved
   useEffect(() => {
     if (!window.ethereum || readFlag()) return;
@@ -138,21 +167,44 @@ export default function App() {
       .catch((err) => setError(err.message));
   }, [account]);
 
-  // Run the eligibility check once we have an account on the right network
+  // Check eligibility, then ask the contract if this wallet already claimed
   useEffect(() => {
+    setTxHash("");
+    setClaimed(false);
+
     if (!account || !onSepolia) {
       setStatus("idle");
       setResult(null);
       return;
     }
 
+    let cancelled = false;
     setStatus("checking");
-    const timer = setTimeout(() => {
-      setResult(checkEligibility(account));
-      setStatus("done");
-    }, 600);
 
-    return () => clearTimeout(timer);
+    (async () => {
+      const eligibility = checkEligibility(account);
+      let alreadyClaimed = false;
+
+      if (eligibility.eligible) {
+        try {
+          alreadyClaimed = await hasClaimed(account);
+        } catch {
+          if (!cancelled) {
+            setError("Could not read the claim status from the contract.");
+          }
+        }
+      }
+
+      if (cancelled) return;
+      setResult(eligibility);
+      setClaimed(alreadyClaimed);
+      setStatus("done");
+    })();
+
+    // If the account changes mid-check, ignore the stale result
+    return () => {
+      cancelled = true;
+    };
   }, [account, onSepolia]);
 
   // Listen for account and network changes in MetaMask
@@ -251,7 +303,19 @@ export default function App() {
               </button>
             </div>
           ) : (
-            <EligibilityCard status={status} result={result} />
+            <>
+              <EligibilityCard status={status} result={result} />
+
+              {status === "done" && result?.eligible && (
+                <ClaimSection
+                  amount={result.amount}
+                  claimed={claimed}
+                  claiming={claiming}
+                  txHash={txHash}
+                  onClaim={handleClaim}
+                />
+              )}
+            </>
           )}
 
           <div className="actions">

@@ -260,3 +260,39 @@ body {
 .warning .icon {
   color: #ffd27b;
 }
+
+.claim-wrap {
+  margin-bottom: 14px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin-icon {
+  animation: spin 0.8s linear infinite;
+}
+
+.claim-done {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #6be3a0;
+  border-color: #1f6b45;
+  background: #0f2a1d;
+}
+
+.claim-done strong {
+  display: block;
+  color: #e8eaf0;
+}
+
+.tx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6be3a0;
+}
