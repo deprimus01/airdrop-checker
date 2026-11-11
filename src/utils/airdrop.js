@@ -26,13 +26,23 @@ export async function hasClaimed(address) {
   return contract.hasClaimed(address);
 }
 
-// Sends the claim transaction and waits for it to be mined
 export async function claimTokens(address) {
   const data = getClaimData(address);
   if (!data) throw new Error("No claim data found for this wallet.");
 
   const contract = await getContract(true);
-  const tx = await contract.claim(data.amount, data.proof);
+
+  // 1. Simulate first: if the contract would reject the claim, the real
+  //    reason (InvalidProof, AlreadyClaimed) shows up here, no gas spent.
+  await contract.claim.staticCall(data.amount, data.proof);
+
+  // 2. Estimate the gas ourselves and add a 30% safety buffer, so the
+  //    transaction doesn't run out of gas however the wallet sends it.
+  const estimate = await contract.claim.estimateGas(data.amount, data.proof);
+  const gasLimit = (estimate * 130n) / 100n;
+
+  // 3. Send it with that explicit gas limit and wait for it to be mined.
+  const tx = await contract.claim(data.amount, data.proof, { gasLimit });
   await tx.wait();
   return tx.hash;
 }

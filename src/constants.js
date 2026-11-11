@@ -8,4 +8,4 @@ export const SEPOLIA = {
 
 // Lowercase on purpose: ethers accepts lowercase without a checksum check.
 export const TOKEN_ADDRESS = "0xa0f6517d67ae29486c73c70f26e5cb57a4b6f760";
-export const AIRDROP_ADDRESS = "0x031290074a4796a979936126b5a3e964011152e8";
+export const AIRDROP_ADDRESS = "0x2036ed85651486bb53ca2f4ed1747ed6230ddf1b";
