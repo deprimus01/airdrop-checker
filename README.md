@@ -18,13 +18,13 @@ Built as a beginner-friendly project to learn wallet connection, network handlin
 
 ## Tech Stack
 
-| Part | Tool |
-|------|------|
-| Framework | React + Vite |
-| Wallet library | ethers.js v6 |
-| Wallet | MetaMask (any EIP-1193 wallet) |
-| Icons | lucide-react |
-| Network | Sepolia testnet |
+| Part           | Tool                           |
+| -------------- | ------------------------------ |
+| Framework      | React + Vite                   |
+| Wallet library | ethers.js v6                   |
+| Wallet         | MetaMask (any EIP-1193 wallet) |
+| Icons          | lucide-react                   |
+| Network        | Sepolia testnet                |
 
 ## Getting Started
 
@@ -95,16 +95,16 @@ src/
 
 ## Testing Checklist
 
-| Test | Expected result |
-|------|-----------------|
-| Connect an eligible account on Sepolia | Green card with the claim amount |
-| Switch to an account not in the list | Red "Not eligible" card |
-| Switch MetaMask to another network | Wrong-network warning appears immediately |
-| Click Switch to Sepolia | Eligibility card returns |
-| Refresh while connected | Stays connected with no popup |
-| Click Disconnect, then refresh | Stays disconnected |
-| Reject the connection in MetaMask | Friendly error message |
-| Open in a browser without a wallet | "No wallet detected" screen with install link |
+| Test                                   | Expected result                               |
+| -------------------------------------- | --------------------------------------------- |
+| Connect an eligible account on Sepolia | Green card with the claim amount              |
+| Switch to an account not in the list   | Red "Not eligible" card                       |
+| Switch MetaMask to another network     | Wrong-network warning appears immediately     |
+| Click Switch to Sepolia                | Eligibility card returns                      |
+| Refresh while connected                | Stays connected with no popup                 |
+| Click Disconnect, then refresh         | Stays disconnected                            |
+| Reject the connection in MetaMask      | Friendly error message                        |
+| Open in a browser without a wallet     | "No wallet detected" screen with install link |
 
 ## Deployment
 
