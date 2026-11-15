@@ -9,6 +9,7 @@ import {
   Network,
   ExternalLink,
 } from "lucide-react";
+import PriceCard from "./components/PriceCard";
 import { checkEligibility } from "./utils/checkEligibility";
 import { hasClaimed, claimTokens } from "./utils/airdrop";
 import EligibilityCard from "./components/EligibilityCard";
@@ -234,6 +235,9 @@ export default function App() {
       <div className="app">
         <h1 className="title">Airdrop Eligibility Checker</h1>
         <p className="subtitle">Connect your wallet to see if you qualify.</p>
+
+        <PriceCard />
+
         <div className="warning">
           <div className="icon">
             <AlertTriangle size={32} />
