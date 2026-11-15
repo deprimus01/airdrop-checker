@@ -14,6 +14,7 @@ Built as a hands-on learning project covering wallet connection, network handlin
 - Works with MetaMask's "Added protection" feature (see Design Notes)
 - Copy the full wallet address with one click
 - Reconnects automatically on refresh and respects manual disconnects
+- PRM/ETH liquidity pool on Uniswap v4 (Sepolia), so the token has a market-driven price
 - Clear handling for rejected requests, missing wallets and failed claims
 - Responsive dark UI with Lucide icons
 
@@ -34,6 +35,7 @@ Built as a hands-on learning project covering wallet connection, network handlin
 | Icons           | lucide-react                   |
 | Smart contracts | Solidity 0.8.x + OpenZeppelin  |
 | Merkle tree     | @openzeppelin/merkle-tree      |
+| Liquidity       | Uniswap v4 (Sepolia)           |
 | Network         | Sepolia testnet                |
 
 ## Deployed Contracts (Sepolia)
@@ -46,6 +48,21 @@ Built as a hands-on learning project covering wallet connection, network handlin
 Merkle root: `0xeaf3e88aaf392b0651e41e81f2769654335ba9b8a54625dea6851f19446b9ed7`
 
 These are testnet contracts and the tokens have no real value.
+
+## Liquidity Pool (Sepolia)
+
+PRM trades against ETH in a Uniswap v4 pool created through the Uniswap app (Testnet mode, Sepolia).
+
+| Setting           | Value                         |
+| ----------------- | ----------------------------- |
+| Pair              | ETH / PRM                     |
+| Version           | v4                            |
+| Fee tier          | 0.25%                         |
+| Price range       | Full range                    |
+| Initial liquidity | about 0.02 ETH and 20,000 PRM |
+| Starting price    | about 1,000,000 PRM per 1 ETH |
+
+The starting price comes from the ratio of the two deposits. After that, trades move it: buying PRM raises the price and selling lowers it. The pool is small, so even tiny swaps show visible price impact, which makes it a good place to watch how an automated market maker works. Sepolia ETH is free, so the price has no real-world value.
 
 ## Getting Started
 
@@ -194,6 +211,7 @@ The frontend is a static Vite build and deploys easily to Vercel:
 - Testnet only. The contracts have not been audited and must not be used with real funds as written.
 - The allowlist and proofs are public in the frontend bundle, so anyone can see who is eligible.
 - Changing the allowlist requires a new airdrop contract and a new deployment.
+- The liquidity pool is tiny and exists only on Sepolia, so its price is only a learning tool.
 
 ## Roadmap
 
@@ -203,9 +221,14 @@ The frontend is a static Vite build and deploys easily to Vercel:
 - [x] Merkle tree script and proofs
 - [x] MerkleAirdrop contract with on-chain claim
 - [x] Claim works with MetaMask "Added protection"
+- [x] ETH/PRM liquidity pool on Uniswap v4 (Sepolia)
+- [ ] Show the live PRM price in the app
 - [ ] Deploy the frontend to Vercel
 - [ ] Phase 3: allowlist NFT mint (ERC-721 with Merkle proof)
 - [ ] Phase 3: claim-badge NFT for wallets that claim the airdrop
+- [ ] Registration window backed by Supabase (PostgreSQL) with wallet signature verification and a flat amount per round
+- [ ] Dashboard, swap page, pool stats and transaction history
+- [ ] Staking and governance
 
 ## Security Notes
 
