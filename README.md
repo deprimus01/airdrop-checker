@@ -1,5 +1,7 @@
 # Airdrop Eligibility Checker
 
+**Live demo:** https://primus-dapp.vercel.app (Sepolia testnet)
+
 A Web3 app where users connect their wallet, see whether their address is on an airdrop allowlist, and claim their tokens on-chain through a Merkle-proof airdrop contract.
 
 Built as a hands-on learning project covering wallet connection, network handling, ERC-20 tokens, Merkle trees and smart contract interaction on the Sepolia testnet.
@@ -15,6 +17,7 @@ Built as a hands-on learning project covering wallet connection, network handlin
 - Copy the full wallet address with one click
 - Reconnects automatically on refresh and respects manual disconnects
 - PRM/ETH liquidity pool on Uniswap v4 (Sepolia), so the token has a market-driven price
+- Live PRM price read straight from the pool, shown even before a wallet is connected
 - Clear handling for rejected requests, missing wallets and failed claims
 - Responsive dark UI with Lucide icons
 
@@ -53,16 +56,21 @@ These are testnet contracts and the tokens have no real value.
 
 PRM trades against ETH in a Uniswap v4 pool created through the Uniswap app (Testnet mode, Sepolia).
 
-| Setting           | Value                         |
-| ----------------- | ----------------------------- |
-| Pair              | ETH / PRM                     |
-| Version           | v4                            |
-| Fee tier          | 0.25%                         |
-| Price range       | Full range                    |
-| Initial liquidity | about 0.02 ETH and 20,000 PRM |
-| Starting price    | about 1,000,000 PRM per 1 ETH |
+| Setting               | Value                                                                |
+| --------------------- | -------------------------------------------------------------------- |
+| Pair                  | ETH / PRM                                                            |
+| Version               | v4                                                                   |
+| Fee tier              | 0.25%                                                                |
+| Price range           | Full range                                                           |
+| Initial liquidity     | about 0.02 ETH and 20,000 PRM                                        |
+| Starting price        | about 1,000,000 PRM per 1 ETH                                        |
+| Pool ID               | `0xc2b2ec193b0294cfd3c05eea38956a5f350b55e59a245128051e8bc7e3a6e674` |
+| PoolManager (Sepolia) | `0xE03A1074c86CFeDd5C142C4F04F1a1536e203543`                         |
+| StateView (Sepolia)   | `0xe1dd9c3fa50edb962e442f60dfbc432e24537e4c`                         |
 
 The starting price comes from the ratio of the two deposits. After that, trades move it: buying PRM raises the price and selling lowers it. The pool is small, so even tiny swaps show visible price impact, which makes it a good place to watch how an automated market maker works. Sepolia ETH is free, so the price has no real-world value.
+
+**Reading the price.** The app calls `getSlot0(poolId)` on Uniswap's StateView contract through a public Sepolia RPC. It returns `sqrtPriceX96`, and because ETH is currency0 and PRM is currency1 (both 18 decimals), `(sqrtPriceX96 / 2^96)^2` is the number of PRM per 1 ETH. The card refreshes every 20 seconds.
 
 ## Getting Started
 
@@ -126,17 +134,19 @@ src/
 ├── App.jsx                     Wallet, network, eligibility and claim state
 ├── main.jsx                    Entry point
 ├── index.css                   Global styles
-├── constants.js                Sepolia config and contract addresses
+├── constants.js                Sepolia config, contract addresses and pool ID
 ├── allowlist.json              Eligible addresses and amounts
 ├── merkle.json                 Generated: Merkle root and per-address proofs
 ├── components/
 │   ├── EligibilityCard.jsx     Checking / eligible / not eligible states
 │   ├── ClaimSection.jsx        Claim button, loading and claimed states
+│   ├── PriceCard.jsx           Live PRM price from the Uniswap v4 pool
 │   └── CopyAddress.jsx         Click-to-copy wallet address
 └── utils/
     ├── allowlist.js            Normalizes addresses into a lookup table
     ├── checkEligibility.js     Returns { eligible, amount } for an address
-    └── airdrop.js              Contract calls: hasClaimed and claimTokens
+    ├── airdrop.js              Contract calls: hasClaimed and claimTokens
+    └── price.js                Reads the pool price from Uniswap v4 StateView
 ```
 
 ## Smart Contracts
@@ -180,21 +190,23 @@ The contract rebuilds each leaf as `keccak256(bytes.concat(keccak256(abi.encode(
 3. **Eligibility:** the connected address is lowercased and looked up in the allowlist.
 4. **Claim status:** for eligible wallets, the app calls `hasClaimed` on the contract.
 5. **Claim:** the app looks up the wallet's amount and proof in `merkle.json` and calls `claim`, then shows an Etherscan link.
+6. **Price:** independent of the wallet, the price card reads the pool's current price through a read-only RPC connection and refreshes on a timer.
 
 ## Testing Checklist
 
-| Test                                      | Expected result                                            |
-| ----------------------------------------- | ---------------------------------------------------------- |
-| Connect an eligible account on Sepolia    | Green card and a Claim button                              |
-| Click Claim and confirm                   | Success card with an Etherscan link; PRM balance increases |
-| Refresh after claiming                    | Still shows "Tokens claimed"                               |
-| Try an account not on the list            | Red "Not eligible" card, no Claim button                   |
-| Claim with MetaMask "Added protection" ON | Claim succeeds                                             |
-| Claim with "Added protection" OFF         | Claim succeeds                                             |
-| Claim from a wallet with no Sepolia ETH   | Wallet reports insufficient funds                          |
-| Switch MetaMask to another network        | Wrong-network warning appears immediately                  |
-| Reject the connection or transaction      | Friendly error message                                     |
-| Open in a browser without a wallet        | "No wallet detected" screen with install link              |
+| Test                                               | Expected result                                                  |
+| -------------------------------------------------- | ---------------------------------------------------------------- |
+| Connect an eligible account on Sepolia             | Green card and a Claim button                                    |
+| Click Claim and confirm                            | Success card with an Etherscan link; PRM balance increases       |
+| Refresh after claiming                             | Still shows "Tokens claimed"                                     |
+| Try an account not on the list                     | Red "Not eligible" card, no Claim button                         |
+| Claim with MetaMask "Added protection" ON          | Claim succeeds                                                   |
+| Claim with "Added protection" OFF                  | Claim succeeds                                                   |
+| Claim from a wallet with no Sepolia ETH            | Wallet reports insufficient funds                                |
+| Switch MetaMask to another network                 | Wrong-network warning appears immediately                        |
+| Reject the connection or transaction               | Friendly error message                                           |
+| Open in a browser without a wallet                 | "No wallet detected" screen with install link and the price card |
+| Make a swap in Uniswap, then wait up to 20 seconds | Price card updates in the right direction                        |
 
 ## Deployment
 
@@ -212,6 +224,7 @@ The frontend is a static Vite build and deploys easily to Vercel:
 - The allowlist and proofs are public in the frontend bundle, so anyone can see who is eligible.
 - Changing the allowlist requires a new airdrop contract and a new deployment.
 - The liquidity pool is tiny and exists only on Sepolia, so its price is only a learning tool.
+- MetaMask may show a "flagged as unsafe" warning on the demo's free `vercel.app` domain. It is a false positive on a new testnet site, and a custom domain plus a report to MetaMask support are planned.
 
 ## Roadmap
 
@@ -222,8 +235,8 @@ The frontend is a static Vite build and deploys easily to Vercel:
 - [x] MerkleAirdrop contract with on-chain claim
 - [x] Claim works with MetaMask "Added protection"
 - [x] ETH/PRM liquidity pool on Uniswap v4 (Sepolia)
-- [ ] Show the live PRM price in the app
-- [ ] Deploy the frontend to Vercel
+- [x] Show the live PRM price in the app
+- [x] Deploy the frontend to Vercel
 - [ ] Phase 3: allowlist NFT mint (ERC-721 with Merkle proof)
 - [ ] Phase 3: claim-badge NFT for wallets that claim the airdrop
 - [ ] Registration window backed by Supabase (PostgreSQL) with wallet signature verification and a flat amount per round
