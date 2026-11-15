@@ -266,6 +266,8 @@ export default function App() {
       <h1 className="title">Airdrop Eligibility Checker</h1>
       <p className="subtitle">Connect your wallet to see if you qualify.</p>
 
+      <PriceCard />
+
       {!account ? (
         <button className="btn" onClick={connectWallet}>
           <Wallet size={18} />
