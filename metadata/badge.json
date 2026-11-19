@@ -1,0 +1,11 @@
+{
+  "name": "Primus Airdrop Claimer",
+  "description": "Soulbound badge for wallets that claimed PRM from the Primus airdrop.",
+  "image": "ipfs://bafybeif5jbcdue5k44rjrji42jel3zqyisbzyogf3hxasduc45jwmosvgi/badge.png",
+  "attributes": [
+    {
+      "trait_type": "Type",
+      "value": "Soulbound badge"
+    }
+  ]
+}

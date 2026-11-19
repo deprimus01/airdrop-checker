@@ -1,0 +1,15 @@
+{
+  "name": "Primus Genesis: Ronin",
+  "description": "Allowlist NFT from the Primus dApp, minted on the Sepolia testnet.",
+  "image": "ipfs://bafybeif5jbcdue5k44rjrji42jel3zqyisbzyogf3hxasduc45jwmosvgi/1.png",
+  "attributes": [
+    {
+      "trait_type": "Collection",
+      "value": "Primus Genesis"
+    },
+    {
+      "trait_type": "Class",
+      "value": "Ronin"
+    }
+  ]
+}
