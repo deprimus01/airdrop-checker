@@ -341,3 +341,43 @@ body {
 .icon-btn:hover {
   background: #232a3b;
 }
+.nft-card {
+  margin-bottom: 14px;
+}
+
+.nft-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nft-note {
+  color: #8b92a5;
+  font-size: 14px;
+  margin: 12px 0 0;
+}
+
+.nft-btn {
+  margin-top: 14px;
+}
+
+.nft-minted {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nft-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.nft-img {
+  width: 100%;
+  max-width: 260px;
+  border-radius: 12px;
+  border: 1px solid #232a3b;
+}

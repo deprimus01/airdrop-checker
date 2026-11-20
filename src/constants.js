@@ -12,3 +12,6 @@ export const AIRDROP_ADDRESS = "0x2036ed85651486bb53ca2f4ed1747ed6230ddf1b";
 export const STATE_VIEW_ADDRESS = "0xe1dd9c3fa50edb962e442f60dfbc432e24537e4c";
 export const POOL_ID =
   "0xc2b2ec193b0294cfd3c05eea38956a5f350b55e59a245128051e8bc7e3a6e674";
+export const NFT_ADDRESS = "0x6d48c2b7479dc5574529471f39d4fb0bf27f45b6";
+export const NFT_DEPLOY_BLOCK = 12169654; // replace with your deployment block, see below
+export const IPFS_GATEWAY = "https://gateway.pinata.cloud/ipfs/";

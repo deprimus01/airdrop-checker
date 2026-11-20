@@ -16,6 +16,7 @@ import EligibilityCard from "./components/EligibilityCard";
 import ClaimSection from "./components/ClaimSection";
 import CopyAddress from "./components/CopyAddress";
 import { SEPOLIA } from "./constants";
+import NftSection from "./components/NftSection";
 
 const DISCONNECT_KEY = "manuallyDisconnected";
 
@@ -321,6 +322,8 @@ export default function App() {
                   onClaim={handleClaim}
                 />
               )}
+
+              <NftSection account={account} />
             </>
           )}
 
