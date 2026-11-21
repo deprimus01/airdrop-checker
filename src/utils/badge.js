@@ -1,16 +1,12 @@
 import { BrowserProvider, Contract, JsonRpcProvider } from "ethers";
-import {
-  SEPOLIA,
-  BADGE_ADDRESS,
-  BADGE_DEPLOY_BLOCK,
-  IPFS_GATEWAY,
-} from "../constants";
+import { SEPOLIA, BADGE_ADDRESS, IPFS_GATEWAY } from "../constants";
 
 const ABI = [
   "function mint(address account)",
   "function hasBadge(address) view returns (bool)",
   "function totalSupply() view returns (uint256)",
   "function tokenURI(uint256 tokenId) view returns (string)",
+  "function ownerOf(uint256 tokenId) view returns (address)",
   "event BadgeMinted(address indexed account, uint256 indexed tokenId)",
   "error AlreadyMinted()",
   "error NotClaimed()",
@@ -35,15 +31,21 @@ export async function getBadgeStatus(account) {
   return { supply: Number(supply), owned };
 }
 
-// Finds which token ID this wallet received by reading the BadgeMinted event
+// Finds which token ID this wallet owns by checking the owner of each minted
+// token. With a small supply that is only a handful of calls, and it avoids
+// the block-range limits that public RPCs put on log queries.
 export async function findBadgeTokenId(account) {
   const contract = reader();
-  const events = await contract.queryFilter(
-    contract.filters.BadgeMinted(account),
-    BADGE_DEPLOY_BLOCK,
+  const supply = Number(await contract.totalSupply());
+  const owners = await Promise.all(
+    Array.from({ length: supply }, (_, i) =>
+      contract.ownerOf(i + 1).catch(() => null),
+    ),
   );
-  if (events.length === 0) return null;
-  return Number(events[events.length - 1].args.tokenId);
+  const index = owners.findIndex(
+    (owner) => owner && owner.toLowerCase() === account.toLowerCase(),
+  );
+  return index === -1 ? null : index + 1;
 }
 
 // Loads the badge metadata JSON from IPFS: { name, image }

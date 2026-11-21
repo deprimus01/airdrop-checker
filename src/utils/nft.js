@@ -1,11 +1,6 @@
 import { BrowserProvider, Contract, JsonRpcProvider } from "ethers";
 import nftMerkle from "../nftMerkle.json";
-import {
-  SEPOLIA,
-  NFT_ADDRESS,
-  NFT_DEPLOY_BLOCK,
-  IPFS_GATEWAY,
-} from "../constants";
+import { SEPOLIA, NFT_ADDRESS, IPFS_GATEWAY } from "../constants";
 
 const ABI = [
   "function mint(address account, bytes32[] proof)",
@@ -13,6 +8,7 @@ const ABI = [
   "function totalSupply() view returns (uint256)",
   "function maxSupply() view returns (uint256)",
   "function tokenURI(uint256 tokenId) view returns (string)",
+  "function ownerOf(uint256 tokenId) view returns (address)",
   "event Minted(address indexed account, uint256 indexed tokenId)",
   "error AlreadyMinted()",
   "error InvalidProof()",
@@ -43,15 +39,21 @@ export async function getNftStatus(account) {
   return { supply: Number(supply), max: Number(max), minted };
 }
 
-// Finds which token ID this wallet minted by reading the Minted event
+// Finds which token ID this wallet owns by checking the owner of each minted
+// token. With a small supply that is only a handful of calls, and it avoids
+// the block-range limits that public RPCs put on log queries.
 export async function findTokenId(account) {
   const contract = reader();
-  const events = await contract.queryFilter(
-    contract.filters.Minted(account),
-    NFT_DEPLOY_BLOCK,
+  const supply = Number(await contract.totalSupply());
+  const owners = await Promise.all(
+    Array.from({ length: supply }, (_, i) =>
+      contract.ownerOf(i + 1).catch(() => null),
+    ),
   );
-  if (events.length === 0) return null;
-  return Number(events[events.length - 1].args.tokenId);
+  const index = owners.findIndex(
+    (owner) => owner && owner.toLowerCase() === account.toLowerCase(),
+  );
+  return index === -1 ? null : index + 1;
 }
 
 // Loads the token's metadata JSON from IPFS: { name, image }
