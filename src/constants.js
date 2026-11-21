@@ -15,3 +15,6 @@ export const POOL_ID =
 export const NFT_ADDRESS = "0x6d48c2b7479dc5574529471f39d4fb0bf27f45b6";
 export const NFT_DEPLOY_BLOCK = 12169654; // replace with your deployment block, see below
 export const IPFS_GATEWAY = "https://gateway.pinata.cloud/ipfs/";
+
+export const BADGE_ADDRESS = "0x9c5f9c8a0607012012fa59456b4a2ef78c38bda4";
+export const BADGE_DEPLOY_BLOCK = 12182134;

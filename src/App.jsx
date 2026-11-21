@@ -17,6 +17,7 @@ import ClaimSection from "./components/ClaimSection";
 import CopyAddress from "./components/CopyAddress";
 import { SEPOLIA } from "./constants";
 import NftSection from "./components/NftSection";
+import BadgeSection from "./components/BadgeSection";
 
 const DISCONNECT_KEY = "manuallyDisconnected";
 
@@ -324,6 +325,8 @@ export default function App() {
               )}
 
               <NftSection account={account} />
+
+              <BadgeSection account={account} claimed={claimed} />
             </>
           )}
 
