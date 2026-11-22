@@ -2,9 +2,9 @@
 
 **Live demo:** https://primus-dapp.vercel.app (Sepolia testnet)
 
-A Web3 app where users connect their wallet, see whether their address is on an airdrop allowlist, and claim their tokens on-chain through a Merkle-proof airdrop contract.
+A Web3 app where users connect their wallet, see whether their address is on an airdrop allowlist, claim their tokens on-chain through a Merkle-proof airdrop contract, mint an allowlist NFT, and earn a soulbound badge for claiming.
 
-Built as a hands-on learning project covering wallet connection, network handling, ERC-20 tokens, Merkle trees and smart contract interaction on the Sepolia testnet.
+Built as a hands-on learning project covering wallet connection, network handling, ERC-20 and ERC-721 tokens, Merkle trees, IPFS metadata, a Uniswap v4 pool and smart contract interaction on the Sepolia testnet.
 
 ## Features
 
@@ -18,6 +18,8 @@ Built as a hands-on learning project covering wallet connection, network handlin
 - Reconnects automatically on refresh and respects manual disconnects
 - PRM/ETH liquidity pool on Uniswap v4 (Sepolia), so the token has a market-driven price
 - Live PRM price read straight from the pool, shown even before a wallet is connected
+- Free allowlist NFT mint (ERC-721) with a Merkle proof, showing the minted artwork from IPFS
+- Soulbound claim badge: only wallets that claimed PRM can mint it, and it can never be transferred
 - Clear handling for rejected requests, missing wallets and failed claims
 - Responsive dark UI with Lucide icons
 
@@ -30,25 +32,34 @@ Built as a hands-on learning project covering wallet connection, network handlin
 
 ## Tech Stack
 
-| Part            | Tool                           |
-| --------------- | ------------------------------ |
-| Frontend        | React + Vite                   |
-| Wallet library  | ethers.js v6                   |
-| Wallet          | MetaMask (any EIP-1193 wallet) |
-| Icons           | lucide-react                   |
-| Smart contracts | Solidity 0.8.x + OpenZeppelin  |
-| Merkle tree     | @openzeppelin/merkle-tree      |
-| Liquidity       | Uniswap v4 (Sepolia)           |
-| Network         | Sepolia testnet                |
+| Part            | Tool                                                           |
+| --------------- | -------------------------------------------------------------- |
+| Frontend        | React + Vite                                                   |
+| Wallet library  | ethers.js v6                                                   |
+| Wallet          | MetaMask (any EIP-1193 wallet)                                 |
+| Icons           | lucide-react                                                   |
+| Smart contracts | Solidity 0.8.x + OpenZeppelin                                  |
+| Merkle tree     | @openzeppelin/merkle-tree                                      |
+| NFTs            | ERC-721 (OpenZeppelin), metadata and images on IPFS via Pinata |
+| Liquidity       | Uniswap v4 (Sepolia)                                           |
+| Network         | Sepolia testnet                                                |
 
 ## Deployed Contracts (Sepolia)
 
-| Contract                  | Address                                      |
-| ------------------------- | -------------------------------------------- |
-| PrimusToken (PRM, ERC-20) | `0xA0f6517d67Ae29486C73c70f26E5cB57a4B6F760` |
-| MerkleAirdrop             | `0x2036ED85651486BB53ca2F4Ed1747eD6230Ddf1b` |
+| Contract                            | Address                                      |
+| ----------------------------------- | -------------------------------------------- |
+| PrimusToken (PRM, ERC-20)           | `0xA0f6517d67Ae29486C73c70f26E5cB57a4B6F760` |
+| MerkleAirdrop                       | `0x2036ED85651486BB53ca2F4Ed1747eD6230Ddf1b` |
+| PrimusNFT (Primus Genesis, ERC-721) | `0x6d48C2B7479dC5574529471f39d4FB0bf27F45b6` |
+| PrimusBadge (soulbound ERC-721)     | `0x867816Bc5107463f16e92073De5D418Daa8087b0` |
 
-Merkle root: `0xeaf3e88aaf392b0651e41e81f2769654335ba9b8a54625dea6851f19446b9ed7`
+| Data                      | Value                                                                 |
+| ------------------------- | --------------------------------------------------------------------- |
+| Airdrop Merkle root       | `0xeaf3e88aaf392b0651e41e81f2769654335ba9b8a54625dea6851f19446b9ed7`  |
+| NFT allowlist Merkle root | `0x0b9d0cf070d15d212db3071b9a14abfbf4ed651da9b503475b42d42b68ffea8d`  |
+| NFT images (IPFS)         | `ipfs://bafybeif5jbcdue5k44rjrji42jel3zqyisbzyogf3hxasduc45jwmosvgi/` |
+| NFT metadata (IPFS)       | `ipfs://bafybeigwzjyur7ttyoh24aee6hedq4fccjekmv67eh24vhtm3jkqdcf534/` |
+| Badge metadata (IPFS)     | `ipfs://bafkreialed5tgu2fgasmyxi46gwnfa4omqkjygfrhnf7quz24h367jnjpy`  |
 
 These are testnet contracts and the tokens have no real value.
 
@@ -72,6 +83,16 @@ The starting price comes from the ratio of the two deposits. After that, trades 
 
 **Reading the price.** The app calls `getSlot0(poolId)` on Uniswap's StateView contract through a public Sepolia RPC. It returns `sqrtPriceX96`, and because ETH is currency0 and PRM is currency1 (both 18 decimals), `(sqrtPriceX96 / 2^96)^2` is the number of PRM per 1 ETH. The card refreshes every 20 seconds.
 
+## NFTs
+
+Two ERC-721 contracts build on the same Merkle-proof pattern as the airdrop.
+
+**PrimusNFT ("Primus Genesis", PGEN).** Wallets on the NFT allowlist can mint one NFT for free (gas only). The maximum supply is 100. Token IDs cycle through six artwork and metadata files, so token 1 uses `1.json`, token 6 uses `6.json`, and token 7 starts again at `1.json`. It is a normal transferable NFT.
+
+**PrimusBadge ("Primus Airdrop Claimer", PBADGE).** A soulbound badge. A wallet can mint one only if the MerkleAirdrop contract reports that it has claimed PRM (`hasClaimed`), and the token can never be transferred. All badges share one metadata file.
+
+**Metadata.** Images and JSON files live on IPFS (uploaded with Pinata). `node scripts/makeMetadata.js <IMAGES_CID>` generates the six NFT JSON files and the badge JSON from the uploaded images CID. The contracts store `ipfs://` links, and the app turns them into gateway URLs to display the artwork.
+
 ## Getting Started
 
 ### Prerequisites
@@ -94,12 +115,14 @@ Open `http://localhost:5173` in a browser that has MetaMask installed. VS Code's
 
 ### Scripts
 
-| Command           | What it does                                          |
-| ----------------- | ----------------------------------------------------- |
-| `npm run dev`     | Start the dev server                                  |
-| `npm run build`   | Production build                                      |
-| `npm run preview` | Preview the production build                          |
-| `npm run merkle`  | Rebuild the Merkle root and proofs from the allowlist |
+| Command                                     | What it does                                                  |
+| ------------------------------------------- | ------------------------------------------------------------- |
+| `npm run dev`                               | Start the dev server                                          |
+| `npm run build`                             | Production build                                              |
+| `npm run preview`                           | Preview the production build                                  |
+| `npm run merkle`                            | Rebuild the airdrop Merkle root and proofs from the allowlist |
+| `npm run merkle:nft`                        | Build the NFT allowlist Merkle root and proofs                |
+| `node scripts/makeMetadata.js <IMAGES_CID>` | Generate the NFT and badge metadata JSON files                |
 
 ## Configuring the Allowlist
 
@@ -122,31 +145,54 @@ Important notes:
 - Only EVM addresses are supported. Solana and other chains need a different wallet connection.
 - JSON does not support comments.
 
+## Configuring the NFT Allowlist
+
+By default the NFT allowlist is the same set of wallets as the airdrop allowlist. To use a different list, create `src/nftAllowlist.json` with a plain array of addresses:
+
+```json
+[
+  "0x951e354EB75452e81a4B782BF57878DE3644c2EB",
+  "0x71614ff0539d1BD9D6bC60926458626BFaC6E39C"
+]
+```
+
+Run `npm run merkle:nft` to write `src/nftMerkle.json` (root and one proof per address). The script skips duplicates and stops on invalid addresses. As with the airdrop, the NFT root is stored permanently in the deployed contract, so changing the list means deploying a new `PrimusNFT` and updating `NFT_ADDRESS` in `src/constants.js`.
+
 ## Project Structure
 
 ```
 contracts/
 ├── PrimusToken.sol             ERC-20 token
-└── MerkleAirdrop.sol           Merkle-proof airdrop and claim
+├── MerkleAirdrop.sol           Merkle-proof airdrop and claim
+├── PrimusNFT.sol               Allowlist NFT mint (ERC-721)
+└── PrimusBadge.sol             Soulbound claim badge (ERC-721)
 scripts/
-└── generateMerkle.js           Builds the Merkle root and proofs
+├── generateMerkle.js           Builds the airdrop Merkle root and proofs
+├── generateNftMerkle.js        Builds the NFT allowlist Merkle root and proofs
+└── makeMetadata.js             Generates NFT and badge metadata JSON files
 src/
-├── App.jsx                     Wallet, network, eligibility and claim state
+├── App.jsx                     Wallet, network, eligibility, claim and section layout
 ├── main.jsx                    Entry point
 ├── index.css                   Global styles
-├── constants.js                Sepolia config, contract addresses and pool ID
-├── allowlist.json              Eligible addresses and amounts
-├── merkle.json                 Generated: Merkle root and per-address proofs
+├── constants.js                Sepolia config, contract addresses, pool ID, IPFS gateway
+├── allowlist.json              Airdrop addresses and amounts
+├── merkle.json                 Generated: airdrop root and per-address proofs
+├── nftAllowlist.json           Optional: NFT allowlist (falls back to allowlist.json)
+├── nftMerkle.json              Generated: NFT root and per-address proofs
 ├── components/
 │   ├── EligibilityCard.jsx     Checking / eligible / not eligible states
 │   ├── ClaimSection.jsx        Claim button, loading and claimed states
 │   ├── PriceCard.jsx           Live PRM price from the Uniswap v4 pool
+│   ├── NftSection.jsx          NFT mint button, supply and minted artwork
+│   ├── BadgeSection.jsx        Badge mint button and minted badge
 │   └── CopyAddress.jsx         Click-to-copy wallet address
 └── utils/
     ├── allowlist.js            Normalizes addresses into a lookup table
     ├── checkEligibility.js     Returns { eligible, amount } for an address
     ├── airdrop.js              Contract calls: hasClaimed and claimTokens
-    └── price.js                Reads the pool price from Uniswap v4 StateView
+    ├── price.js                Reads the pool price from Uniswap v4 StateView
+    ├── nft.js                  NFT status, proof lookup, metadata and mint
+    └── badge.js                Badge status, metadata and mint
 ```
 
 ## Smart Contracts
@@ -175,13 +221,34 @@ Stores the token address and the Merkle root (both immutable) and exposes:
 
 The contract rebuilds each leaf as `keccak256(bytes.concat(keccak256(abi.encode(account, amount))))`, which matches the format produced by `@openzeppelin/merkle-tree`. If the leaf format on either side changes, every claim fails with `InvalidProof`.
 
+### PrimusNFT
+
+An OpenZeppelin ERC-721 with Merkle-proof minting.
+
+- `mint(address account, bytes32[] proof)`: verifies that `account` is in the NFT allowlist, allows one mint per wallet and sends the token to `account`. Reverts with `AlreadyMinted`, `InvalidProof` or `SoldOut`.
+- `tokenURI(tokenId)`: `baseURI` plus a metadata file number from 1 to 6, cycling by token ID.
+- `setBaseURI(uri)`: owner-only, in case the metadata is re-uploaded.
+- Each leaf is `keccak256(bytes.concat(keccak256(abi.encode(account))))`, matching a single-address tree from `@openzeppelin/merkle-tree`.
+
+### PrimusBadge
+
+A soulbound ERC-721 gated by the airdrop contract.
+
+- `mint(address account)`: reads `hasClaimed(account)` from the MerkleAirdrop contract, allows one badge per wallet and sends it to `account`. Reverts with `AlreadyMinted` or `NotClaimed`.
+- Transfers and burns revert with `Soulbound`, because `_update` only allows the mint movement (from the zero address).
+- `setBadgeURI(uri)`: owner-only.
+
 ## Design Notes
 
 **Why `claim` takes an `account` parameter.** An earlier version used `msg.sender` to identify the claimant. With MetaMask's "Added protection" turned on, the transaction is routed through an intermediate contract, so `msg.sender` became that contract instead of the user's wallet and the proof check failed. Passing the recipient explicitly fixes this. It stays safe because tokens only ever go to the address inside the proof, so whoever submits the transaction cannot redirect or steal an allocation.
 
 **Why the frontend simulates before sending.** `claimTokens` calls `staticCall` first, so a rejected claim shows its real reason without spending gas, then adds a 30% buffer to the gas estimate.
 
-**Gas.** Every claimant needs a little Sepolia ETH to pay the transaction fee, even though the tokens are free.
+**Soulbound badge.** OpenZeppelin v5 routes every mint, transfer and burn through one internal function, `_update`. The badge overrides it and reverts whenever the token already has an owner, so minting is the only movement that works. This makes the badge proof that a wallet claimed, because it cannot be bought or sent.
+
+**Finding a wallet's token ID.** The app first read a wallet's token ID from `Minted` event logs, but public RPCs limit log queries over wide block ranges and the lookup started failing. It now calls `ownerOf` for each minted token (a handful of calls at this supply), which does not depend on log queries.
+
+**Gas.** Every claimant, minter and badge holder needs a little Sepolia ETH to pay the transaction fee, even though the tokens and NFTs are free.
 
 ## How the Frontend Works
 
@@ -191,6 +258,8 @@ The contract rebuilds each leaf as `keccak256(bytes.concat(keccak256(abi.encode(
 4. **Claim status:** for eligible wallets, the app calls `hasClaimed` on the contract.
 5. **Claim:** the app looks up the wallet's amount and proof in `merkle.json` and calls `claim`, then shows an Etherscan link.
 6. **Price:** independent of the wallet, the price card reads the pool's current price through a read-only RPC connection and refreshes on a timer.
+7. **NFT:** the app checks the wallet's proof in `nftMerkle.json`, reads supply and `hasMinted` from the contract, simulates the mint, then sends it. Afterwards it loads the token's metadata from IPFS and shows the artwork.
+8. **Badge:** the badge card unlocks once the airdrop claim is detected, and works the same way without a proof.
 
 ## Testing Checklist
 
@@ -207,6 +276,12 @@ The contract rebuilds each leaf as `keccak256(bytes.concat(keccak256(abi.encode(
 | Reject the connection or transaction               | Friendly error message                                           |
 | Open in a browser without a wallet                 | "No wallet detected" screen with install link and the price card |
 | Make a swap in Uniswap, then wait up to 20 seconds | Price card updates in the right direction                        |
+| Connect a wallet on the NFT allowlist and mint     | Artwork and name appear, supply goes up by one                   |
+| Refresh after minting                              | Minted NFT still shown                                           |
+| Connect a wallet not on the NFT allowlist          | "Not on the NFT allowlist" message, no mint button               |
+| Mint the badge before claiming PRM                 | Locked message, no mint button                                   |
+| Claim PRM, then mint the badge                     | Gold badge appears with a Soulbound tag                          |
+| Try to send the badge to another address           | Transaction fails (soulbound)                                    |
 
 ## Deployment
 
@@ -222,7 +297,9 @@ The frontend is a static Vite build and deploys easily to Vercel:
 
 - Testnet only. The contracts have not been audited and must not be used with real funds as written.
 - The allowlist and proofs are public in the frontend bundle, so anyone can see who is eligible.
-- Changing the allowlist requires a new airdrop contract and a new deployment.
+- Changing the airdrop or NFT allowlist requires a new contract and a new deployment, because each Merkle root is permanent.
+- The contract owner can change the NFT base URI and the badge URI. That is handy while learning, but on a real project it would be a trust assumption.
+- Wallets can be slow to render testnet NFT images, so MetaMask may show a blank image even though the metadata is correct.
 - The liquidity pool is tiny and exists only on Sepolia, so its price is only a learning tool.
 - MetaMask may show a "flagged as unsafe" warning on the demo's free `vercel.app` domain. It is a false positive on a new testnet site, and a custom domain plus a report to MetaMask support are planned.
 
@@ -237,8 +314,9 @@ The frontend is a static Vite build and deploys easily to Vercel:
 - [x] ETH/PRM liquidity pool on Uniswap v4 (Sepolia)
 - [x] Show the live PRM price in the app
 - [x] Deploy the frontend to Vercel
-- [ ] Phase 3: allowlist NFT mint (ERC-721 with Merkle proof)
-- [ ] Phase 3: claim-badge NFT for wallets that claim the airdrop
+- [x] Phase 3: allowlist NFT mint (ERC-721 with Merkle proof)
+- [x] Phase 3: soulbound claim badge for wallets that claim the airdrop
+- [ ] Token logo and an "Add PRM to MetaMask" button
 - [ ] Registration window backed by Supabase (PostgreSQL) with wallet signature verification and a flat amount per round
 - [ ] Dashboard, swap page, pool stats and transaction history
 - [ ] Staking and governance
