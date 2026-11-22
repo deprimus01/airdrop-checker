@@ -7,14 +7,19 @@ export const SEPOLIA = {
 };
 
 // Lowercase on purpose: ethers accepts lowercase without a checksum check.
+
+// PRM token and Merkle airdrop
 export const TOKEN_ADDRESS = "0xa0f6517d67ae29486c73c70f26e5cb57a4b6f760";
 export const AIRDROP_ADDRESS = "0x2036ed85651486bb53ca2f4ed1747ed6230ddf1b";
+
+// Uniswap v4 PRM/ETH pool (read through StateView)
 export const STATE_VIEW_ADDRESS = "0xe1dd9c3fa50edb962e442f60dfbc432e24537e4c";
 export const POOL_ID =
   "0xc2b2ec193b0294cfd3c05eea38956a5f350b55e59a245128051e8bc7e3a6e674";
-export const NFT_ADDRESS = "0x6d48c2b7479dc5574529471f39d4fb0bf27f45b6";
-export const NFT_DEPLOY_BLOCK = 12169654; // replace with your deployment block, see below
-export const IPFS_GATEWAY = "https://gateway.pinata.cloud/ipfs/";
 
-export const BADGE_ADDRESS = "0x9c5f9c8a0607012012fa59456b4a2ef78c38bda4";
-export const BADGE_DEPLOY_BLOCK = 12182134;
+// NFTs: allowlist mint and soulbound claim badge
+export const NFT_ADDRESS = "0x6d48c2b7479dc5574529471f39d4fb0bf27f45b6";
+export const BADGE_ADDRESS = "0x867816bc5107463f16e92073de5d418daa8087b0";
+
+// Gateway used to show IPFS images in the app
+export const IPFS_GATEWAY = "https://gateway.pinata.cloud/ipfs/";
