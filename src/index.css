@@ -388,3 +388,30 @@ body {
   gap: 6px;
   font-size: 13px;
 }
+
+/* Airdrop registration card */
+.reg-card {
+  margin-bottom: 14px;
+}
+
+.reg-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.reg-state {
+  margin: 14px 0 0;
+}
+
+.reg-hint {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.reg-inline-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 6px;
+}

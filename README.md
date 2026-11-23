@@ -17,6 +17,7 @@ Built as a hands-on learning project covering wallet connection, network handlin
 - Copy the full wallet address with one click
 - Reconnects automatically on refresh and respects manual disconnects
 - PRM/ETH liquidity pool on Uniswap v4 (Sepolia), so the token has a market-driven price
+- Airdrop registration: wallets sign a free message to sign up during a window, with a cap, stored in Supabase
 - Live PRM price read straight from the pool, shown even before a wallet is connected
 - Free allowlist NFT mint (ERC-721) with a Merkle proof, showing the minted artwork from IPFS
 - Soulbound claim badge: only wallets that claimed PRM can mint it, and it can never be transferred
@@ -42,6 +43,7 @@ Built as a hands-on learning project covering wallet connection, network handlin
 | Merkle tree     | @openzeppelin/merkle-tree                                      |
 | NFTs            | ERC-721 (OpenZeppelin), metadata and images on IPFS via Pinata |
 | Liquidity       | Uniswap v4 (Sepolia)                                           |
+| Backend         | Supabase: PostgreSQL and Edge Functions (Deno)                 |
 | Network         | Sepolia testnet                                                |
 
 ## Deployed Contracts (Sepolia)
@@ -93,6 +95,19 @@ Two ERC-721 contracts build on the same Merkle-proof pattern as the airdrop.
 
 **Metadata.** Images and JSON files live on IPFS (uploaded with Pinata). `node scripts/makeMetadata.js <IMAGES_CID>` generates the six NFT JSON files and the badge JSON from the uploaded images CID. The contracts store `ipfs://` links, and the app turns them into gateway URLs to display the artwork.
 
+## Airdrop Registration (Supabase)
+
+Wallets can register for the next airdrop round during a window (round 1: 25 Nov to 25 Dec 2026, 5,000 PRM per wallet, capped at 100 wallets).
+
+1. The app asks the wallet to sign a short message. It costs no gas, so registration works with zero ETH.
+2. An Edge Function rebuilds the message, verifies that the signature comes from that wallet, rejects stale signatures (older than 10 minutes), and calls a database function.
+3. The database function runs in one transaction that locks the round row, then checks that the round is open, the wallet is new and the cap is not reached, so simultaneous requests cannot overfill a round.
+4. The tables use row level security with no policies, so the browser can never read or write them directly. The browser only needs the project URL (`VITE_SUPABASE_URL`).
+
+The window, amount and cap live in a `rounds` table row and can be edited without redeploying. Full setup steps, the deploy commands and the test command are in `supabase/README.md`.
+
+After a round closes, the registered addresses are exported, a Merkle tree is built with the flat amount, and a new `MerkleAirdrop` contract is deployed for that round (see the plan in `PLAN.md`).
+
 ## Getting Started
 
 ### Prerequisites
@@ -113,6 +128,10 @@ npm run dev
 
 Open `http://localhost:5173` in a browser that has MetaMask installed. VS Code's built-in preview cannot access wallet extensions.
 
+### Environment variables
+
+Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` to enable the registration card. Without it the card stays hidden and everything else works. Never commit `.env` files.
+
 ### Scripts
 
 | Command                                     | What it does                                                  |
@@ -122,6 +141,7 @@ Open `http://localhost:5173` in a browser that has MetaMask installed. VS Code's
 | `npm run preview`                           | Preview the production build                                  |
 | `npm run merkle`                            | Rebuild the airdrop Merkle root and proofs from the allowlist |
 | `npm run merkle:nft`                        | Build the NFT allowlist Merkle root and proofs                |
+| `npm run test:functions`                    | Run the registration function tests (uses Deno)               |
 | `node scripts/makeMetadata.js <IMAGES_CID>` | Generate the NFT and badge metadata JSON files                |
 
 ## Configuring the Allowlist
@@ -166,6 +186,13 @@ contracts/
 ├── MerkleAirdrop.sol           Merkle-proof airdrop and claim
 ├── PrimusNFT.sol               Allowlist NFT mint (ERC-721)
 └── PrimusBadge.sol             Soulbound claim badge (ERC-721)
+supabase/
+├── migrations/                 Registration tables, security rules, register_wallet function
+├── functions/
+│   ├── register/               POST: verify the signature and register a wallet
+│   ├── registration-info/      GET: round details, count and registration status
+│   └── _shared/                Shared logic, Supabase client and tests
+└── README.md                   Supabase setup steps
 scripts/
 ├── generateMerkle.js           Builds the airdrop Merkle root and proofs
 ├── generateNftMerkle.js        Builds the NFT allowlist Merkle root and proofs
@@ -185,6 +212,7 @@ src/
 │   ├── PriceCard.jsx           Live PRM price from the Uniswap v4 pool
 │   ├── NftSection.jsx          NFT mint button, supply and minted artwork
 │   ├── BadgeSection.jsx        Badge mint button and minted badge
+│   ├── RegistrationCard.jsx    Airdrop registration window, count and register button
 │   └── CopyAddress.jsx         Click-to-copy wallet address
 └── utils/
     ├── allowlist.js            Normalizes addresses into a lookup table
@@ -192,7 +220,9 @@ src/
     ├── airdrop.js              Contract calls: hasClaimed and claimTokens
     ├── price.js                Reads the pool price from Uniswap v4 StateView
     ├── nft.js                  NFT status, proof lookup, metadata and mint
-    └── badge.js                Badge status, metadata and mint
+    ├── badge.js                Badge status, metadata and mint
+    ├── registration.js         Sign the message and call the registration functions
+    └── registrationMessage.js  The exact text a wallet signs (same format as the server)
 ```
 
 ## Smart Contracts
@@ -317,7 +347,8 @@ The frontend is a static Vite build and deploys easily to Vercel:
 - [x] Phase 3: allowlist NFT mint (ERC-721 with Merkle proof)
 - [x] Phase 3: soulbound claim badge for wallets that claim the airdrop
 - [ ] Token logo and an "Add PRM to MetaMask" button
-- [ ] Registration window backed by Supabase (PostgreSQL) with wallet signature verification and a flat amount per round
+- [x] Registration backed by Supabase (PostgreSQL) with wallet signature verification, a cap and a flat amount per round (code complete; deploy with `supabase/README.md`)
+- [ ] Export registrations after the window closes, build the round's Merkle tree and deploy its airdrop contract
 - [ ] Dashboard, swap page, pool stats and transaction history
 - [ ] Staking and governance
 

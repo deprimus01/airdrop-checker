@@ -18,6 +18,7 @@ import CopyAddress from "./components/CopyAddress";
 import { SEPOLIA } from "./constants";
 import NftSection from "./components/NftSection";
 import BadgeSection from "./components/BadgeSection";
+import RegistrationCard from "./components/RegistrationCard";
 
 const DISCONNECT_KEY = "manuallyDisconnected";
 
@@ -269,6 +270,8 @@ export default function App() {
       <p className="subtitle">Connect your wallet to see if you qualify.</p>
 
       <PriceCard />
+
+      <RegistrationCard account={account} />
 
       {!account ? (
         <button className="btn" onClick={connectWallet}>
