@@ -106,7 +106,7 @@ Wallets can register for the next airdrop round during a window (round 1: 25 Nov
 
 The window, amount and cap live in a `rounds` table row and can be edited without redeploying. Full setup steps, the deploy commands and the test command are in `supabase/README.md`.
 
-After a round closes, the registered addresses are exported, a Merkle tree is built with the flat amount, and a new `MerkleAirdrop` contract is deployed for that round (see the plan in `PLAN.md`).
+After a round closes, the registered addresses are exported, a Merkle tree is built with the flat amount, and a new `MerkleAirdrop` contract is deployed for that round (see the plan in `docs/PLAN.md`).
 
 ## Getting Started
 
@@ -186,6 +186,7 @@ contracts/
 ├── MerkleAirdrop.sol           Merkle-proof airdrop and claim
 ├── PrimusNFT.sol               Allowlist NFT mint (ERC-721)
 └── PrimusBadge.sol             Soulbound claim badge (ERC-721)
+docs/                           Project status, plan, architecture, contracts, decisions, troubleshooting
 supabase/
 ├── migrations/                 Registration tables, security rules, register_wallet function
 ├── functions/

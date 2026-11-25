@@ -35,6 +35,11 @@ alter table public.registrations enable row level security;
 revoke all on public.rounds from anon, authenticated;
 revoke all on public.registrations from anon, authenticated;
 
+-- The Edge Functions connect as service_role and only need to read these tables
+-- (writes go through register_wallet). Grant that explicitly so it works whether
+-- or not the project is set to auto-grant API access to new tables.
+grant select on public.rounds, public.registrations to service_role;
+
 -- Registers one wallet. Runs in a single transaction and locks the round row,
 -- so the window check and the cap check cannot be raced by simultaneous requests.
 -- Returns one of:
