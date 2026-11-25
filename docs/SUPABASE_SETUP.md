@@ -21,38 +21,34 @@ The database password was set by the owner and saved by the owner. It must never
 
 | Step | Command | State |
 |------|---------|-------|
-| CLI available | `npx supabase --version` (3.3.0) | Done |
+| CLI available | `npx supabase --version` (3.3.0, later 3.4.0 via npx) | Done |
 | Log in | `npx supabase login` | Done |
 | Create config | `npx supabase init --force` (file already existed, so it was overwritten with defaults) | Done |
 | Link project | `npx supabase link --project-ref yhcnfucoquhjfosgltsh` | Done |
-| Check files | `ls supabase supabase/functions` | Not yet run |
-| Create tables | `npx supabase db push` | Not yet run |
-| Deploy `register` | `npx supabase functions deploy register --no-verify-jwt` | Not yet run |
-| Deploy `registration-info` | `npx supabase functions deploy registration-info --no-verify-jwt` | Not yet run |
-| Local env var | `VITE_SUPABASE_URL` in `.env.local` | Not yet done |
-| Vercel env var | `VITE_SUPABASE_URL` in Project Settings, then redeploy | Not yet done |
+| Create tables | `npx supabase db push --remote` | Done |
+| Deploy `register` | `npx supabase functions deploy register --no-verify-jwt` | Done |
+| Deploy `registration-info` | `npx supabase functions deploy registration-info --no-verify-jwt` | Done |
+| Local env var | `VITE_SUPABASE_URL` in `.env.local` | Done |
+| Vercel env var | `VITE_SUPABASE_URL` in Project Settings, then redeploy | Done |
+| Live test | Register from https://primus-dapp.vercel.app | Done |
 
-## Remaining commands
+## Commands used
 
-Run from the project root (`~/airdrop-checker` on the owner's machine).
+Run from the project root (`~/airdrop-checker`).
 
 ```bash
-# 1. Confirm the folders are intact
-ls supabase supabase/functions
-# expect: config.toml  functions  migrations  README.md  and  _shared  register  registration-info
-
-# 2. Create the tables and Round 1 (asks for the database password, then y to confirm)
-npx supabase db push
-
-# 3. Deploy both functions (public endpoints, protected by the signature)
+npx supabase db push --remote
 npx supabase functions deploy register --no-verify-jwt
 npx supabase functions deploy registration-info --no-verify-jwt
-
-# 4. Check the info endpoint
 curl https://yhcnfucoquhjfosgltsh.supabase.co/functions/v1/registration-info
 ```
 
-If `db push` cannot connect (a timeout or a "failed to connect to host" error, which can happen without IPv6), paste the full contents of `supabase/migrations/20261122120000_airdrop_registration.sql` into the dashboard SQL Editor and run it. The result is the same.
+Notes:
+
+- Since CLI 3.4.0, `db push` targets a local Docker database by default and fails with "connection refused" on port 54322. Add `--remote` to push to the linked project. `functions deploy` already targeted the linked project.
+- If `db push` cannot connect (a network without IPv6, for example), paste the migration file into the dashboard SQL Editor and run it. The migration would then not be recorded in Supabase's history.
+- To change the database later, add a new migration file (never edit the applied one) and run `npx supabase db push --remote`.
+- To change a function, edit it and run the same deploy command again.
 
 ## Verify in the dashboard
 

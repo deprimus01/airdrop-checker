@@ -348,7 +348,7 @@ The frontend is a static Vite build and deploys easily to Vercel:
 - [x] Phase 3: allowlist NFT mint (ERC-721 with Merkle proof)
 - [x] Phase 3: soulbound claim badge for wallets that claim the airdrop
 - [ ] Token logo and an "Add PRM to MetaMask" button
-- [x] Registration backed by Supabase (PostgreSQL) with wallet signature verification, a cap and a flat amount per round (code complete; deploy with `supabase/README.md`)
+- [x] Registration backed by Supabase (PostgreSQL) with wallet signature verification, a cap and a flat amount per round (live)
 - [ ] Export registrations after the window closes, build the round's Merkle tree and deploy its airdrop contract
 - [ ] Dashboard, swap page, pool stats and transaction history
 - [ ] Staking and governance

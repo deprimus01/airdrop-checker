@@ -52,7 +52,8 @@ Problems already hit during the build, with the cause and the fix.
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | `supabase init` says `config.toml` file exists | A file was already there | `npx supabase init --force` (replaces it with defaults; the migration and functions are untouched) |
-| `db push` cannot connect | Network without IPv6 or a firewall | Run the migration in the dashboard SQL Editor |
+| `db push` fails with `ECONNREFUSED 127.0.0.1:54322` and mentions Docker | Supabase CLI 3.4.0 and later target a local database by default | `npx supabase db push --remote` |
+| `db push --remote` cannot connect | Network without IPv6 or a firewall | Run the migration in the dashboard SQL Editor |
 | Function returns CORS errors in the browser | Preflight not handled or the function is not deployed | Redeploy; the shared handler answers `OPTIONS` |
 | Registration card is missing | `VITE_SUPABASE_URL` is not set, or no non-draft round exists | Set the variable and restart or rebuild, and check the `rounds` table |
 | "The signature has expired" | The message is older than 10 minutes or the device clock is far off | Try again, and check the device clock |

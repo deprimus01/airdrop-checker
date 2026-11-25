@@ -16,7 +16,7 @@ Working plan for everything after Phase 3. It records what is already built, the
 | 2 | PRM ERC-20 token, Merkle tree, MerkleAirdrop contract, claim from the app | Done |
 | 2.5 | Uniswap v4 ETH/PRM pool on Sepolia, live price card | Done |
 | 3 | Allowlist NFT (PrimusNFT) and soulbound claim badge (PrimusBadge) | Done |
-| 4 | Airdrop registration with Supabase (this plan, section 3) | Code complete and tested locally. Supabase project created, CLI logged in and linked. Next: `db push`, deploy the functions, set `VITE_SUPABASE_URL` |
+| 4 | Airdrop registration with Supabase (this plan, section 3) | Done and live (25 Nov 2026) |
 | 5 | Dashboard, swap page, pool stats, transaction history | Planned |
 | 6 | Staking and governance | Planned |
 | Polish | Token logo and Add-to-MetaMask button, demo video, custom domain, MetaMask warning report | Planned |
@@ -314,7 +314,7 @@ Recommendation: CLI, because the function is security-critical and belongs in th
 
 ---
 
-## 9. Phase 4 hand-off
+## 9. Phase 4 hand-off (completed)
 
 Done on the code side (see `supabase/README.md`):
 
@@ -325,8 +325,8 @@ Done on the code side (see `supabase/README.md`):
 Still to do by you:
 
 - [x] Create the Supabase project (free tier): done, ref `yhcnfucoquhjfosgltsh`
-- [ ] Run the setup commands. Done so far: login, `init --force`, `link`. Still to run: `db push`, then deploy both functions with `--no-verify-jwt`
-- [ ] Put `VITE_SUPABASE_URL` in `.env.local` and in the Vercel environment variables, then redeploy
-- [ ] Test every row of the checklist in 3.10, ideally with two or three test wallets
+- [x] Run the setup commands: login, `init --force`, `link`, `db push --remote`, deploy both functions with `--no-verify-jwt`
+- [x] Put `VITE_SUPABASE_URL` in `.env.local` and in the Vercel environment variables, then redeploy
+- [ ] Test the remaining rows of the checklist in 3.10 (register, refresh and rejecting the signature are done; cap and closed states are not)
 
 Never send the secret (service role) key in chat.

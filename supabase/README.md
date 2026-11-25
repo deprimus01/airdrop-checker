@@ -38,8 +38,9 @@ npx supabase init
 #    (https://supabase.com/dashboard/project/<ref>). It asks for the database password.
 npx supabase link --project-ref YOUR_PROJECT_REF
 
-# 4. Create the tables and Round 1
-npx supabase db push
+# 4. Create the tables and Round 1 (--remote is needed on CLI 3.4.0 and later,
+#    which otherwise targets a local Docker database)
+npx supabase db push --remote
 
 # 5. Deploy both functions. They are public endpoints (no login), protected by
 #    the wallet signature, so JWT verification is turned off.

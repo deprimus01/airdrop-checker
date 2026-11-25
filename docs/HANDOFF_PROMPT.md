@@ -13,20 +13,13 @@ The Primus dApp ("airdrop-checker") is a practice-mode blockchain portfolio proj
 2. Summarize back to me, in a few lines, where we are and what you will do next, and ask me for anything you are missing.
 
 ## What is done
-- Phases 1 to 3 are finished and working in the app: wallet connect and network switch, eligibility, Merkle airdrop claim, Uniswap v4 price card, PrimusNFT allowlist mint, soulbound PrimusBadge.
-- Phase 4 (airdrop registration) is built and tested locally: a Postgres migration, two Supabase Edge Functions (register, registration-info), a React RegistrationCard, 12 Deno tests, and docs. Wallets sign a free message, so registration works with zero ETH.
-- Registration decisions: Supabase with PostgreSQL, Supabase CLI deployment, window 25 Nov 2026 to 25 Dec 2026 (UTC assumed), flat 5,000 PRM per wallet, cap of 100 wallets, no ETH requirement, functions public (deployed with --no-verify-jwt), only VITE_SUPABASE_URL needed in the browser.
-- Supabase project Primus-dApp is created (ref yhcnfucoquhjfosgltsh, Frankfurt, free tier). The CLI runs through npx. I have run: npx supabase login, npx supabase init --force, npx supabase link --project-ref yhcnfucoquhjfosgltsh. (supabase/config.toml exists on my machine from init, but is not in the zip.)
+- Phases 1 to 4 are finished and live: wallet connect and network switch, eligibility, Merkle airdrop claim, Uniswap v4 price card, PrimusNFT allowlist mint, soulbound PrimusBadge, and airdrop registration.
+- Registration runs on Supabase (PostgreSQL, project Primus-dApp, ref yhcnfucoquhjfosgltsh, Frankfurt, free tier) with two public Edge Functions (register, registration-info), deployed with the Supabase CLI (db push needs --remote on CLI 3.4.0 and later). Wallets sign a free message, so registration works with zero ETH. The browser only needs VITE_SUPABASE_URL, which is set locally and in Vercel.
+- Round 1: opens 25 Nov 2026 00:00 UTC, closes 25 Dec 2026 23:59:59 UTC, flat 5,000 PRM per wallet, cap of 100 wallets. It is open now, and a few registrations were made with test wallets.
+- Everything is committed and pushed to GitHub, and Vercel auto-deploys it.
 
 ## Where we stopped (resume here)
-I have NOT yet run these. Walk me through them one at a time and wait for my output after each:
-1. ls supabase supabase/functions
-2. npx supabase db push (creates the tables and Round 1; fallback is pasting the migration into the dashboard SQL Editor)
-3. Check the dashboard Table Editor shows rounds (1 row) and registrations (empty)
-4. npx supabase functions deploy register --no-verify-jwt, then the same for registration-info
-5. curl the registration-info endpoint
-6. Set VITE_SUPABASE_URL in .env.local, run the app, and test the registration card with a test wallet (the window opens 25 Nov 00:00 UTC; before that, I can edit opens_at in the table to test)
-7. Add the variable in Vercel, redeploy, test the live site, and commit and push
+Registration is live and working. The next step is the round-close pipeline, or the polish items, whichever I choose first. Before the round ends I still want to run the cap and closed-state checks and decide whether to delete the test registrations.
 
 ## What comes next after that
 1. Round close pipeline: scripts/exportRegistrations.js (secret key only from a local .env, never committed), build the round's Merkle tree with the flat amount, deploy and fund a new MerkleAirdrop, a public round_proofs table, and a round-aware claim flow (design in docs/PLAN.md section 3.8). Decide with me whether the existing airdrop contract stays as a separate "launch" claim.
