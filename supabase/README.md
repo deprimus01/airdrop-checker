@@ -8,6 +8,7 @@ registration card.
 | `migrations/20261122120000_airdrop_registration.sql` | Tables, row level security, the atomic `register_wallet` function and Round 1 |
 | `functions/register/` | `POST /register`: verifies the wallet signature, then registers the wallet |
 | `functions/registration-info/` | `GET /registration-info`: round details, registered count and whether a wallet is registered |
+| `functions/round-claim/` | `GET /round-claim?address=0x...`: for each live round, the wallet's own Merkle proof (never the full list) |
 | `functions/_shared/` | Shared logic, the Supabase client and the unit tests |
 
 ## How it works
@@ -46,6 +47,7 @@ npx supabase db push --remote
 #    the wallet signature, so JWT verification is turned off.
 npx supabase functions deploy register --no-verify-jwt
 npx supabase functions deploy registration-info --no-verify-jwt
+npx supabase functions deploy round-claim --no-verify-jwt
 ```
 
 If `supabase init` asks about generating VS Code or IntelliJ settings, answer no.

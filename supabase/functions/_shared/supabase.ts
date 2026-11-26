@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import type { Db, RegisterResult, RoundRow } from "./registration.ts";
+import type { ClaimDb, LiveRound, ProofRow } from "./roundClaim.ts";
 
 // Supabase exposes the secret key to Edge Functions under one of two names,
 // depending on how the project's API keys are set up.
@@ -69,6 +70,38 @@ export function createDb(): Db {
         .maybeSingle();
       if (error) throw error;
       return data !== null;
+    },
+  };
+}
+
+// A ClaimDb backed by the real project. Only rounds the owner has marked live
+// (airdrop contract deployed and funded) are ever returned.
+export function createClaimDb(): ClaimDb {
+  const client = createClient(Deno.env.get("SUPABASE_URL")!, getSecretKey(), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  return {
+    async getLiveRounds() {
+      const { data, error } = await client
+        .from("rounds")
+        .select("id, name, amount, airdrop_address")
+        .eq("status", "live")
+        .not("airdrop_address", "is", null)
+        .order("id", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as LiveRound[];
+    },
+
+    async getProof(roundId, address) {
+      const { data, error } = await client
+        .from("round_proofs")
+        .select("amount, proof")
+        .eq("round_id", roundId)
+        .eq("address", address)
+        .maybeSingle();
+      if (error) throw error;
+      return data as ProofRow | null;
     },
   };
 }

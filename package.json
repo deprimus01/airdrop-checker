@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "merkle": "node scripts/generateMerkle.js",
     "merkle:nft": "node scripts/generateNftMerkle.js",
-    "test:functions": "npx --yes deno test --allow-env --allow-read supabase/functions"
+    "test:functions": "npx --yes deno test --node-modules-dir=none --allow-env --allow-read supabase/functions",
+    "round:export": "node --env-file=.env.admin scripts/exportRegistrations.js",
+    "test:scripts": "node --test scripts/lib/roundTree.test.js"
   },
   "dependencies": {
     "@openzeppelin/merkle-tree": "^1.0.8",
@@ -20,6 +22,7 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.119.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",

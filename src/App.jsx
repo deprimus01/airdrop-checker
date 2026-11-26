@@ -19,6 +19,7 @@ import { SEPOLIA } from "./constants";
 import NftSection from "./components/NftSection";
 import BadgeSection from "./components/BadgeSection";
 import RegistrationCard from "./components/RegistrationCard";
+import RoundClaimCard from "./components/RoundClaimCard";
 
 const DISCONNECT_KEY = "manuallyDisconnected";
 
@@ -326,6 +327,8 @@ export default function App() {
                   onClaim={handleClaim}
                 />
               )}
+
+              <RoundClaimCard account={account} />
 
               <NftSection account={account} />
 
