@@ -16,7 +16,7 @@ Network: Ethereum Sepolia testnet (chain id 11155111, hex `0xaa36a7`). All contr
 
 | Contract | Address | Notes |
 |----------|---------|-------|
-| PrimusToken (PRM) | `0xA0f6517d67Ae29486C73c70f26E5cB57a4B6F760` | ERC-20, 18 decimals, 1,000,000 minted to the owner at deployment, no mint function |
+| PrimusToken (PRM) | `0xa0F6517D67AE29486c73c70F26e5cB57a4b6f760` | ERC-20, 18 decimals, 1,000,000 minted to the owner at deployment, no mint function |
 | MerkleAirdrop | `0x2036ED85651486BB53ca2F4Ed1747eD6230Ddf1b` | `claim(account, amount, proof)`. Funded with 2,000 PRM |
 | PrimusNFT (Primus Genesis, PGEN) | `0x6d48C2B7479dC5574529471f39d4FB0bf27F45b6` | Allowlist mint, max supply 100 |
 | PrimusBadge (Primus Airdrop Claimer, PBADGE) | `0x867816Bc5107463f16e92073De5D418Daa8087b0` | Soulbound, gated by the airdrop contract's `hasClaimed` |
@@ -87,7 +87,7 @@ The images folder does not contain a badge image. The badge image file was named
 | Contract | Address | Status |
 |----------|---------|--------|
 | First MerkleAirdrop (used `msg.sender`) | `0x031290074A4796a979936126b5a3e964011152E8` | Superseded. It broke when MetaMask "Added protection" routed claims through a forwarder. It may still hold unclaimed PRM, which the owner can recover with `withdrawRemaining` |
-| PrimusBadge, first deploy | `0x9c5F9c8a0607012012fa59456b4a2ef78c38bda4` | Unused (its badge image link was broken) |
+| PrimusBadge, first deploy | `0x9c5F9c8A0607012012fa59456B4a2ef78C38bDa4` | Unused (its badge image link was broken) |
 | PrimusBadge, second deploy | `0xbB941D89Fa894F7569a2b3949C4bd071349cD65a` | Unused |
 
 ## Checklist when a contract changes

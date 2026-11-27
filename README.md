@@ -50,7 +50,7 @@ Built as a hands-on learning project covering wallet connection, network handlin
 
 | Contract                            | Address                                      |
 | ----------------------------------- | -------------------------------------------- |
-| PrimusToken (PRM, ERC-20)           | `0xA0f6517d67Ae29486C73c70f26E5cB57a4B6F760` |
+| PrimusToken (PRM, ERC-20)           | `0xa0F6517D67AE29486c73c70F26e5cB57a4b6f760` |
 | MerkleAirdrop                       | `0x2036ED85651486BB53ca2F4Ed1747eD6230Ddf1b` |
 | PrimusNFT (Primus Genesis, ERC-721) | `0x6d48C2B7479dC5574529471f39d4FB0bf27F45b6` |
 | PrimusBadge (soulbound ERC-721)     | `0x867816Bc5107463f16e92073De5D418Daa8087b0` |
