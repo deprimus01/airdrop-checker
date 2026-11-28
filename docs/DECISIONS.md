@@ -55,3 +55,19 @@ Lucide icons everywhere, no emojis. Dark theme. Cards for each feature.
 
 ## 18. MetaMask warning on the live site
 MetaMask flags the free `primus-dapp.vercel.app` domain as unsafe (a false positive for a new site). Deferred by the user until the project is fully built. Options: report it to MetaMask support, and use a custom domain.
+
+## 19. The launch airdrop stays; each round gets its own contract
+
+The original airdrop contract and `merkle.json` stay as a separate "launch" claim. Each registration round gets a new `MerkleAirdrop` with its own root, shown as a separate "Round airdrop" card. Nothing already claimed breaks, and the contract needed no changes. Open point: the badge only checks the launch airdrop.
+
+## 20. Round proofs are private and served by an Edge Function
+
+`round_proofs` has row level security and no policies. The `round-claim` function returns only the requested wallet's own proof. This differs from the first plan in `PLAN.md` 3.8 (a public table), because a public table would expose the full list of registered wallets and would need an anon key in the browser, which breaks decision 13. Proofs are not secret in themselves, since the contract only pays the wallet a leaf was built for.
+
+## 21. The export runs locally with the secret key in `.env.admin`
+
+`scripts/exportRegistrations.js` is the only place the Supabase secret key is used outside the Edge Functions. The key lives in a local `.env.admin` (ignored by git), never in the repo, Vercel or the browser. The script is a dry run unless `--write` is passed, and it never edits the `rounds` row: after deploying the contract the owner edits `merkle_root`, `airdrop_address` and `status` by hand.
+
+## 22. Verify a contract on-chain before funding it
+
+A `MerkleAirdrop` stores its token address as an immutable, and its only recovery function (`withdrawRemaining`) calls that token. If the token address is wrong, nothing sent to the contract can ever be recovered. On 27 Nov 2026 a rehearsal contract was deployed with a mistyped PRM address (one letter, `E` instead of `F`), and 10,000 PRM sent to it is stuck. Rule: copy addresses from `src/constants.js` or from an on-chain read, never retype them from docs, and run `npm run round:check -- <address> <root>` before sending any PRM.

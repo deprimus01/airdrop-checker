@@ -106,7 +106,7 @@ Wallets can register for the next airdrop round during a window (round 1: 25 Nov
 
 The window, amount and cap live in a `rounds` table row and can be edited without redeploying. Full setup steps, the deploy commands and the test command are in `supabase/README.md`.
 
-After a round closes, the registered addresses are exported, a Merkle tree is built with the flat amount, and a new `MerkleAirdrop` contract is deployed for that round (see the plan in `docs/PLAN.md`).
+After a round closes, `npm run round:export` reads the registered addresses, builds a Merkle tree with the flat amount and stores each wallet's proof in a private `round_proofs` table. A new `MerkleAirdrop` is deployed and funded for that round, and the round row is marked live. The app then shows a "Round airdrop" claim card to registered wallets, loading each wallet's own proof through the `round-claim` Edge Function. The existing launch airdrop stays claimable separately. The runbook is in `docs/SUPABASE_SETUP.md`.
 
 ## Getting Started
 
@@ -132,6 +132,8 @@ Open `http://localhost:5173` in a browser that has MetaMask installed. VS Code's
 
 Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` to enable the registration card. Without it the card stays hidden and everything else works. Never commit `.env` files.
 
+The round close tools (`npm run round:export`) read `SUPABASE_URL` and `SUPABASE_SECRET_KEY` from a separate, git-ignored `.env.admin` file on the owner's machine. The secret key never goes in the repo, Vercel or the browser.
+
 ### Scripts
 
 | Command                                     | What it does                                                  |
@@ -141,7 +143,10 @@ Copy `.env.example` to `.env.local` and set `VITE_SUPABASE_URL` to enable the re
 | `npm run preview`                           | Preview the production build                                  |
 | `npm run merkle`                            | Rebuild the airdrop Merkle root and proofs from the allowlist |
 | `npm run merkle:nft`                        | Build the NFT allowlist Merkle root and proofs                |
-| `npm run test:functions`                    | Run the registration function tests (uses Deno)               |
+| `npm run test:functions`                    | Run the Edge Function tests (uses Deno)                       |
+| `npm run test:scripts`                      | Run the round Merkle tree tests                               |
+| `npm run round:export -- --round 1`         | Round close: build the tree (dry run; add `--write` to store proofs). Needs `.env.admin` |
+| `npm run round:check -- <address> [root]`   | Check a deployed MerkleAirdrop before funding it               |
 | `node scripts/makeMetadata.js <IMAGES_CID>` | Generate the NFT and badge metadata JSON files                |
 
 ## Configuring the Allowlist
@@ -192,11 +197,15 @@ supabase/
 ├── functions/
 │   ├── register/               POST: verify the signature and register a wallet
 │   ├── registration-info/      GET: round details, count and registration status
+│   ├── round-claim/            GET: a wallet's own proof for each live round
 │   └── _shared/                Shared logic, Supabase client and tests
 └── README.md                   Supabase setup steps
 scripts/
 ├── generateMerkle.js           Builds the airdrop Merkle root and proofs
 ├── generateNftMerkle.js        Builds the NFT allowlist Merkle root and proofs
+├── exportRegistrations.js      Round close: registrations to Merkle tree and round_proofs
+├── checkAirdrop.js             Read-only check of a deployed MerkleAirdrop before funding
+├── lib/                        Round tree builder and its tests
 └── makeMetadata.js             Generates NFT and badge metadata JSON files
 src/
 ├── App.jsx                     Wallet, network, eligibility, claim and section layout
@@ -214,15 +223,17 @@ src/
 │   ├── NftSection.jsx          NFT mint button, supply and minted artwork
 │   ├── BadgeSection.jsx        Badge mint button and minted badge
 │   ├── RegistrationCard.jsx    Airdrop registration window, count and register button
+│   ├── RoundClaimCard.jsx      Claim cards for live registration rounds
 │   └── CopyAddress.jsx         Click-to-copy wallet address
 └── utils/
     ├── allowlist.js            Normalizes addresses into a lookup table
     ├── checkEligibility.js     Returns { eligible, amount } for an address
-    ├── airdrop.js              Contract calls: hasClaimed and claimTokens
+    ├── airdrop.js              Contract calls for any airdrop contract: hasClaimed, claim
     ├── price.js                Reads the pool price from Uniswap v4 StateView
     ├── nft.js                  NFT status, proof lookup, metadata and mint
     ├── badge.js                Badge status, metadata and mint
     ├── registration.js         Sign the message and call the registration functions
+    ├── roundClaim.js           Loads a wallet's round claims from the round-claim function
     └── registrationMessage.js  The exact text a wallet signs (same format as the server)
 ```
 

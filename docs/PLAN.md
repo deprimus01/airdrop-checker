@@ -179,6 +179,8 @@ Plan: ship the baseline, and add 2 or 3 only if spam shows up. Decide before lau
 
 ### 3.8 After the window closes: from registrations to claims
 
+**Status (28 Nov 2026): built and rehearsed.** One change from the design below: `round_proofs` is private and proofs are served by the `round-claim` Edge Function, not a public table (see `DECISIONS.md` 20). The runbook is in `SUPABASE_SETUP.md`.
+
 1. Set the round `status` to `closed` (or let the time pass).
 2. Run an export script with the service role key. It writes the registered addresses for the round.
 3. The script applies the flat `amount` to every address and builds the Merkle tree, same format as today (`[address, amount in 18 decimals]`).

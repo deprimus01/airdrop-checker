@@ -1,6 +1,6 @@
 # Project status
 
-Snapshot date: 25 Nov 2026. Update this file whenever the state changes.
+Snapshot date: 28 Nov 2026. Update this file whenever the state changes.
 
 ## Summary
 
@@ -19,6 +19,7 @@ The Primus dApp is a testnet portfolio project. A wallet can check airdrop eligi
 | 2.5 | Uniswap v4 ETH/PRM pool, live price card | Done |
 | 3 | PrimusNFT allowlist mint and soulbound PrimusBadge | Done, working in the app |
 | 4 | Airdrop registration (Supabase) | Done and live. Round 1 is open until 25 Dec 2026 |
+| 4.5 | Round close pipeline (export script, `round_proofs`, `round-claim` function, round claim card) | Built and rehearsed end to end on Sepolia. The real run happens after Round 1 closes |
 | 5 | Dashboard, swap page, pool stats, transaction history | Planned |
 | 6 | Staking and governance | Planned |
 | Polish | Token logo and Add-to-MetaMask button, demo video, custom domain, MetaMask warning report | Planned |
@@ -38,21 +39,35 @@ Round 1: opens 25 Nov 2026 00:00 UTC, closes 25 Dec 2026 23:59:59 UTC, 5,000 PRM
 
 Optional checks not yet done: the cap and closed states (set `max_registrations` to the current count, or `status` to `closed`, in the Table Editor, then restore the values).
 
+## Round close pipeline (built and rehearsed)
+
+Built and tested:
+
+- `round_proofs` table (migration `20261125120000_round_proofs.sql`). It is private: row level security with no policies, so only the Edge Functions and the export script (service role) can touch it.
+- `scripts/exportRegistrations.js` (`npm run round:export -- --round 1`). Reads the registrations with the secret key from a local `.env.admin`, re-checks every stored signature, builds the Merkle tree with the flat amount, writes `round-exports/round-<id>.json`, and stores proofs in `round_proofs` only with `--write`. Dry run by default. It refuses to run before the round closes unless `--allow-open` is passed, and refuses a round already marked `live`. 5 unit tests in `scripts/lib/roundTree.test.js` (`npm run test:scripts`).
+- `round-claim` Edge Function (`GET /round-claim?address=0x...`). Returns, for each live round, only that wallet's own proof. 6 Deno tests, 18 in total with the registration tests (`npm run test:functions`).
+- `RoundClaimCard` in the app. Shows a claim button for each live round that includes the connected wallet. Only `VITE_SUPABASE_URL` is needed in the browser.
+- `scripts/checkAirdrop.js` (`npm run round:check -- <address> [root]`). A read-only check to run before funding a new airdrop contract.
+
+Rehearsal on 28 Nov 2026 (test data, 2 registrations): a temporary `Rehearsal` round row pointed at a throwaway contract. A test wallet claimed 5,000 PRM through the card and Etherscan confirmed the transfer. The temporary row was then deleted. See `CONTRACTS.md` for the two rehearsal contracts. The first one was deployed with a mistyped PRM address and its 10,000 PRM is permanently stuck (see `DECISIONS.md` 22).
+
 ## What has been verified and what has not
 
 Verified in a sandbox: the migration on a real Postgres engine (window, duplicates, cap, closed and draft rounds, privileges), 12 unit tests of the function logic, the real browser code end to end against the real handlers with a fake wallet, production build, lint (0 errors, 6 warnings of a known harmless kind).
 
-Confirmed on the real Supabase project: the migration applies, both functions deploy and respond, the secret key is available to the functions (reads and registrations work), and the browser can call them without a key. Still not tested against real conditions: the cap and closed states, and heavy simultaneous traffic.
+Confirmed on the real Supabase project: the migration applies, both functions deploy and respond, the secret key is available to the functions (reads and registrations work), and the browser can call them without a key. Still not tested against real conditions: the cap and closed states, and heavy simultaneous traffic. The round close pipeline was verified only with 2 test registrations. A full-size round (up to 100 wallets) has not been run, and the real export has not been run after the window closes.
 
 ## Open decisions
 
 - Abuse protection at launch: baseline only (signature, window, one entry per wallet) is the default. Rate limit or CAPTCHA only if spam appears.
-- The existing airdrop contract: keep it as a separate "launch" claim, or show only the new round after the window closes.
+- Decided: the existing airdrop stays claimable as a separate "launch" claim next to the round claim (`DECISIONS.md` 19).
+- The badge: it checks only the launch airdrop's `hasClaimed`. Decide whether a round claim should also qualify (that would need a new badge contract).
+- Gas for claimers: claiming costs gas, and registrants may have no Sepolia ETH. Decide whether to tell them to get some, or to add a relayer later (`claim` already sends tokens to the `account` argument, so any wallet can submit it).
 - Registration time zone: assumed UTC. The user did not state a preference.
 
 ## What comes next
 
-1. When Round 1 closes: write `scripts/exportRegistrations.js`, build the round's Merkle tree with the flat 5,000 PRM amount, deploy a new `MerkleAirdrop`, fund it, and update the `rounds` row. Add a public `round_proofs` table and make the claim flow round-aware (design in `PLAN.md` section 3.8).
+1. When Round 1 closes (25 Dec 2026 23:59:59 UTC): run the real export, deploy and check a new `MerkleAirdrop`, fund it, and mark the round live. The step-by-step runbook is in `SUPABASE_SETUP.md`, section "After the window closes".
 2. Polish: save the PRM logo as `public/prm-logo.png` and add an "Add PRM to MetaMask" button using `wallet_watchAsset`. Record a demo. Consider a custom domain and a false-positive report to MetaMask support (MetaMask warns on the free vercel.app domain).
 3. Phases 5 and 6 as in `PLAN.md`. Note that PRM is a plain ERC-20 without voting support, so governance needs a design decision.
 

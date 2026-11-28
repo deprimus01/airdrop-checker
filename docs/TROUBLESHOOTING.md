@@ -57,3 +57,14 @@ Problems already hit during the build, with the cause and the fix.
 | Function returns CORS errors in the browser | Preflight not handled or the function is not deployed | Redeploy; the shared handler answers `OPTIONS` |
 | Registration card is missing | `VITE_SUPABASE_URL` is not set, or no non-draft round exists | Set the variable and restart or rebuild, and check the `rounds` table |
 | "The signature has expired" | The message is older than 10 minutes or the device clock is far off | Try again, and check the device clock |
+| `permission denied for table rounds` from `npm run round:export` | `.env.admin` holds the publishable key instead of the secret key | Use the key labelled secret (`sb_secret_...`) from the API keys page |
+| Deno tests fail on `@types/node` or type-check errors | `node_modules` exists next to the functions, so Deno resolves npm types differently | `npm run test:functions` already passes `--node-modules-dir=none` |
+
+## Round airdrop (Remix and claims)
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Remix: `bad address checksum` when deploying | A mixed-case address whose capitals are wrong, or a mistyped address | Take the address from `src/constants.js` or an on-chain read. The all-lowercase form is always accepted |
+| Round claim card: `execution reverted (unknown custom error)` | The claim reaches the token transfer and fails there. Usually the contract holds too little PRM, or its immutable `token` address is wrong. A wrong proof or an already-claimed wallet shows a named message instead | `npm run round:check -- <contract>`. If the token is wrong, redeploy. Anything already sent to that contract is stuck |
+| `balanceOf` through a contract's token returns `0x` | The address has no contract code | The address is mistyped. Compare it with the on-chain value |
+| Registration card shows registration as closed while a test round exists | The card follows the newest non-draft round | Delete the temporary round row |

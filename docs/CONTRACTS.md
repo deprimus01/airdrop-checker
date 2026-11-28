@@ -87,6 +87,8 @@ The images folder does not contain a badge image. The badge image file was named
 | Contract | Address | Status |
 |----------|---------|--------|
 | First MerkleAirdrop (used `msg.sender`) | `0x031290074A4796a979936126b5a3e964011152E8` | Superseded. It broke when MetaMask "Added protection" routed claims through a forwarder. It may still hold unclaimed PRM, which the owner can recover with `withdrawRemaining` |
+| Rehearsal MerkleAirdrop 1 | `0x1c207C8f995a7F30a27f1206122ACfe50A315364` | Unusable. Deployed with a mistyped PRM address, so it cannot pay out. The 10,000 PRM sent to it is permanently stuck |
+| Rehearsal MerkleAirdrop 2 | `0xa3cB4e08D9914d403D81c4Bfc7f0E2C97A46E85a` | Rehearsal on 28 Nov 2026 with a 2-wallet test root. Paid 5,000 PRM to one test wallet. Empty, no longer used |
 | PrimusBadge, first deploy | `0x9c5F9c8A0607012012fa59456B4a2ef78C38bDa4` | Unused (its badge image link was broken) |
 | PrimusBadge, second deploy | `0xbB941D89Fa894F7569a2b3949C4bd071349cD65a` | Unused |
 

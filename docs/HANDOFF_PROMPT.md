@@ -19,10 +19,10 @@ The Primus dApp ("airdrop-checker") is a practice-mode blockchain portfolio proj
 - Everything is committed and pushed to GitHub, and Vercel auto-deploys it.
 
 ## Where we stopped (resume here)
-Registration is live and working. The next step is the round-close pipeline, or the polish items, whichever I choose first. Before the round ends I still want to run the cap and closed-state checks and decide whether to delete the test registrations.
+Registration is live. The round-close pipeline is built and was rehearsed end to end on 28 Nov 2026 (export script, round_proofs table, round-claim function, round claim card; a test wallet claimed 5,000 PRM from a rehearsal contract). The real run happens after Round 1 closes on 25 Dec: follow the runbook in docs/SUPABASE_SETUP.md. Until then I will pick between polish and Phase 5. Still open: the badge rule for round claims, gas for claimers who have no Sepolia ETH, the cap and closed-state checks, and whether to delete the test registrations. Lesson: a mistyped token address in a deployed MerkleAirdrop strands any PRM sent to it, so always run npm run round:check before funding.
 
 ## What comes next after that
-1. Round close pipeline: scripts/exportRegistrations.js (secret key only from a local .env, never committed), build the round's Merkle tree with the flat amount, deploy and fund a new MerkleAirdrop, a public round_proofs table, and a round-aware claim flow (design in docs/PLAN.md section 3.8). Decide with me whether the existing airdrop contract stays as a separate "launch" claim.
+1. Real round close run after 25 Dec 2026, using the runbook in docs/SUPABASE_SETUP.md. The existing airdrop stays as a separate "launch" claim (decided).
 2. Polish: save my green PRM logo as public/prm-logo.png and add an "Add PRM to MetaMask" button (wallet_watchAsset), a demo recording for the README, and later a custom domain and a false-positive report to MetaMask support (MetaMask warns on the free vercel.app domain).
 3. Phase 5: dashboard, swap page (a deep link to Uniswap may be enough), pool stats, transaction history. Public RPCs limit log queries, so history and stats may need an indexer or the Etherscan API (verify before relying on it).
 4. Phase 6: staking and governance. PRM is a plain ERC-20 without vote tracking, so we must choose a governance design first.

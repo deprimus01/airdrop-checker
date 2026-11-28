@@ -89,4 +89,19 @@ Table Editor, `rounds`. `opens_at` and `closes_at` are UTC. `amount` is whole PR
 
 ## After the window closes
 
-Not built yet. Plan: an export script reads the registered addresses with the secret key from a local `.env` (never committed), builds a Merkle tree with the flat amount (leaf `(address, amount * 10^18)`), a new `MerkleAirdrop` is deployed and funded with `registrants * amount` PRM, the `rounds` row is updated (`merkle_root`, `airdrop_address`, `status = 'live'`), and a public `round_proofs` table lets the app load each wallet's proof without a redeploy. See `PLAN.md` section 3.8.
+The pipeline is built and was rehearsed on 28 Nov 2026. Real run, after `closes_at` has passed:
+
+1. **Admin file.** Create `.env.admin` in the project root (ignored by git) with `SUPABASE_URL` and `SUPABASE_SECRET_KEY`. Take the key labelled secret (starts `sb_secret_`) from the API keys page of the project settings, not the publishable one. Never paste it into a chat or commit it.
+2. **Close the round.** Table Editor, `rounds`: set `status` to `closed`.
+3. **Clean the list.** In `registrations`, delete any test registrations you do not want to pay.
+4. **Dry run.** `npm run round:export -- --round 1`. Note the wallet count, the Merkle root and the PRM to fund (`wallets x 5,000`).
+5. **Store the proofs.** `npm run round:export -- --round 1 --write`. Check that `round_proofs` has one row per wallet.
+6. **Deploy.** In Remix, deploy `MerkleAirdrop` from the owner wallet on Sepolia with `token_` = the PRM address and `merkleRoot_` = the root from step 5. Copy the root and the PRM address from `src/constants.js` and the script output, do not retype them.
+7. **Check before funding.** `npm run round:check -- <new contract> <root>`. Every line must say PASS. If anything fails, do not send PRM: redeploy.
+8. **Fund.** Send `wallets x 5,000` PRM to the contract, then confirm the balance on-chain.
+9. **Go live.** Edit the `rounds` row: `merkle_root`, `airdrop_address` (lowercase is fine) and `status = 'live'`. Registration closes for good at this point.
+10. **Verify.** `curl "https://yhcnfucoquhjfosgltsh.supabase.co/functions/v1/round-claim?address=<a registered wallet>"` should return that wallet's proof. Then claim once from the live site with that wallet. Claiming costs gas, so the wallet needs some Sepolia ETH.
+
+After the real round the owner can recover leftover PRM with `withdrawRemaining()` from the owner wallet.
+
+Rehearsing again: add a temporary round row with status `live`, then delete it afterwards. While a newer round exists, the registration card follows that newest round (it picks the newest non-draft round), so it shows registration as closed until the row is removed.

@@ -12,7 +12,8 @@
     "merkle:nft": "node scripts/generateNftMerkle.js",
     "test:functions": "npx --yes deno test --node-modules-dir=none --allow-env --allow-read supabase/functions",
     "round:export": "node --env-file=.env.admin scripts/exportRegistrations.js",
-    "test:scripts": "node --test scripts/lib/roundTree.test.js"
+    "test:scripts": "node --test scripts/lib/roundTree.test.js",
+    "round:check": "node scripts/checkAirdrop.js"
   },
   "dependencies": {
     "@openzeppelin/merkle-tree": "^1.0.8",
