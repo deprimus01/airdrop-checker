@@ -16,7 +16,7 @@ Network: Ethereum Sepolia testnet (chain id 11155111, hex `0xaa36a7`). All contr
 
 | Contract | Address | Notes |
 |----------|---------|-------|
-| PrimusToken (PRM) | `0xa0F6517D67AE29486c73c70F26e5cB57a4b6f760` | ERC-20, 18 decimals, 1,000,000 minted to the owner at deployment, no mint function |
+| PrimusToken (PRM) | `0xA0f6517d67Ae29486C73c70f26F5cB57a4B6F760` | ERC-20, 18 decimals, 1,000,000 minted to the owner at deployment, no mint function |
 | MerkleAirdrop | `0x2036ED85651486BB53ca2F4Ed1747eD6230Ddf1b` | `claim(account, amount, proof)`. Funded with 2,000 PRM |
 | PrimusNFT (Primus Genesis, PGEN) | `0x6d48C2B7479dC5574529471f39d4FB0bf27F45b6` | Allowlist mint, max supply 100 |
 | PrimusBadge (Primus Airdrop Claimer, PBADGE) | `0x867816Bc5107463f16e92073De5D418Daa8087b0` | Soulbound, gated by the airdrop contract's `hasClaimed` |

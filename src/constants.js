@@ -9,7 +9,7 @@ export const SEPOLIA = {
 // Lowercase on purpose: ethers accepts lowercase without a checksum check.
 
 // PRM token and Merkle airdrop
-export const TOKEN_ADDRESS = "0xa0f6517d67ae29486c73c70f26e5cb57a4b6f760";
+export const TOKEN_ADDRESS = "0xa0f6517d67ae29486c73c70f26f5cb57a4b6f760";
 export const AIRDROP_ADDRESS = "0x2036ed85651486bb53ca2f4ed1747ed6230ddf1b";
 
 // Uniswap v4 PRM/ETH pool (read through StateView)
