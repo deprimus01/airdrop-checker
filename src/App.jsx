@@ -21,6 +21,7 @@ import BadgeSection from "./components/BadgeSection";
 import RegistrationCard from "./components/RegistrationCard";
 import RoundClaimCard from "./components/RoundClaimCard";
 import AddTokenButton from "./components/AddTokenButton";
+import DashboardCard from "./components/DashboardCard";
 
 const DISCONNECT_KEY = "manuallyDisconnected";
 
@@ -317,6 +318,8 @@ export default function App() {
             </div>
           ) : (
             <>
+              <DashboardCard account={account} />
+
               <EligibilityCard status={status} result={result} />
 
               {status === "done" && result?.eligible && (

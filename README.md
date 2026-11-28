@@ -225,6 +225,7 @@ src/
 │   ├── RegistrationCard.jsx    Airdrop registration window, count and register button
 │   ├── RoundClaimCard.jsx      Claim cards for live registration rounds
 │   ├── AddTokenButton.jsx      Add PRM to the wallet (wallet_watchAsset) with the logo
+│   ├── DashboardCard.jsx       Wallet summary: balances, claims, registration, NFT, badge
 │   └── CopyAddress.jsx         Click-to-copy wallet address
 └── utils/
     ├── allowlist.js            Normalizes addresses into a lookup table
@@ -235,6 +236,7 @@ src/
     ├── badge.js                Badge status, metadata and mint
     ├── registration.js         Sign the message and call the registration functions
     ├── roundClaim.js           Loads a wallet's round claims from the round-claim function
+    ├── dashboard.js            Gathers every dashboard value for a wallet (read-only)
     └── registrationMessage.js  The exact text a wallet signs (same format as the server)
 ```
 

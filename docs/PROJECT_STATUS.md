@@ -20,7 +20,7 @@ The Primus dApp is a testnet portfolio project. A wallet can check airdrop eligi
 | 3 | PrimusNFT allowlist mint and soulbound PrimusBadge | Done, working in the app |
 | 4 | Airdrop registration (Supabase) | Done and live. Round 1 is open until 25 Dec 2026 |
 | 4.5 | Round close pipeline (export script, `round_proofs`, `round-claim` function, round claim card) | Built and rehearsed end to end on Sepolia. The real run happens after Round 1 closes |
-| 5 | Dashboard, swap page, pool stats, transaction history | Planned |
+| 5 | Dashboard, swap page, pool stats, transaction history | In progress: dashboard built (5.1). Swap link, pool stats and history still planned |
 | 6 | Staking and governance | Planned |
 | Polish | Token logo and Add-to-MetaMask button, demo video, custom domain, MetaMask warning report | Logo (`public/prm-logo.png`) and Add-to-MetaMask button built, pending deploy and a wallet test. Demo video, custom domain and MetaMask report still planned |
 
