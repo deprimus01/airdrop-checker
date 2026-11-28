@@ -224,6 +224,7 @@ src/
 │   ├── BadgeSection.jsx        Badge mint button and minted badge
 │   ├── RegistrationCard.jsx    Airdrop registration window, count and register button
 │   ├── RoundClaimCard.jsx      Claim cards for live registration rounds
+│   ├── AddTokenButton.jsx      Add PRM to the wallet (wallet_watchAsset) with the logo
 │   └── CopyAddress.jsx         Click-to-copy wallet address
 └── utils/
     ├── allowlist.js            Normalizes addresses into a lookup table

@@ -20,6 +20,7 @@ import NftSection from "./components/NftSection";
 import BadgeSection from "./components/BadgeSection";
 import RegistrationCard from "./components/RegistrationCard";
 import RoundClaimCard from "./components/RoundClaimCard";
+import AddTokenButton from "./components/AddTokenButton";
 
 const DISCONNECT_KEY = "manuallyDisconnected";
 
@@ -333,6 +334,8 @@ export default function App() {
               <NftSection account={account} />
 
               <BadgeSection account={account} claimed={claimed} />
+
+              <AddTokenButton />
             </>
           )}
 

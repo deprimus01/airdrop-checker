@@ -10,6 +10,10 @@ export const SEPOLIA = {
 
 // PRM token and Merkle airdrop
 export const TOKEN_ADDRESS = "0xa0f6517d67ae29486c73c70f26f5cb57a4b6f760";
+
+// PRM logo shown by MetaMask when a wallet adds the token. MetaMask loads it
+// from a public URL, so it only appears once the site is deployed.
+export const TOKEN_LOGO_URL = "https://primus-dapp.vercel.app/prm-logo.png";
 export const AIRDROP_ADDRESS = "0x2036ed85651486bb53ca2f4ed1747ed6230ddf1b";
 
 // Uniswap v4 PRM/ETH pool (read through StateView)
