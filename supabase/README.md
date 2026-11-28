@@ -9,6 +9,7 @@ registration card.
 | `functions/register/` | `POST /register`: verifies the wallet signature, then registers the wallet |
 | `functions/registration-info/` | `GET /registration-info`: round details, registered count and whether a wallet is registered |
 | `functions/round-claim/` | `GET /round-claim?address=0x...`: for each live round, the wallet's own Merkle proof (never the full list) |
+| `functions/chain-history/` | `GET /chain-history?view=pool` or `?view=wallet&address=0x...`: pool swap activity and a wallet's PRM, NFT and badge history, read from Etherscan. Needs the `ETHERSCAN_API_KEY` secret |
 | `functions/_shared/` | Shared logic, the Supabase client and the unit tests |
 
 ## How it works
@@ -48,6 +49,7 @@ npx supabase db push --remote
 npx supabase functions deploy register --no-verify-jwt
 npx supabase functions deploy registration-info --no-verify-jwt
 npx supabase functions deploy round-claim --no-verify-jwt
+npx supabase functions deploy chain-history --no-verify-jwt
 ```
 
 If `supabase init` asks about generating VS Code or IntelliJ settings, answer no.

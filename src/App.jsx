@@ -22,6 +22,8 @@ import RegistrationCard from "./components/RegistrationCard";
 import RoundClaimCard from "./components/RoundClaimCard";
 import AddTokenButton from "./components/AddTokenButton";
 import DashboardCard from "./components/DashboardCard";
+import PoolStatsCard from "./components/PoolStatsCard";
+import HistoryCard from "./components/HistoryCard";
 
 const DISCONNECT_KEY = "manuallyDisconnected";
 
@@ -244,6 +246,8 @@ export default function App() {
 
         <PriceCard />
 
+        <PoolStatsCard />
+
         <div className="warning">
           <div className="icon">
             <AlertTriangle size={32} />
@@ -273,6 +277,8 @@ export default function App() {
       <p className="subtitle">Connect your wallet to see if you qualify.</p>
 
       <PriceCard />
+
+        <PoolStatsCard />
 
       <RegistrationCard account={account} />
 
@@ -337,6 +343,8 @@ export default function App() {
               <NftSection account={account} />
 
               <BadgeSection account={account} claimed={claimed} />
+
+              <HistoryCard account={account} />
 
               <AddTokenButton />
             </>

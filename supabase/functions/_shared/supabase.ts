@@ -1,6 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import type { Db, RegisterResult, RoundRow } from "./registration.ts";
 import type { ClaimDb, LiveRound, ProofRow } from "./roundClaim.ts";
+import type { HistoryDeps } from "./chainHistory.ts";
+import { createEtherscan } from "./etherscan.ts";
 
 // Supabase exposes the secret key to Edge Functions under one of two names,
 // depending on how the project's API keys are set up.
@@ -103,5 +105,31 @@ export function createClaimDb(): ClaimDb {
       if (error) throw error;
       return data as ProofRow | null;
     },
+  };
+}
+
+// Dependencies for the chain-history function. The Etherscan key is a function
+// secret (set with `supabase secrets set`); without it the function answers
+// "not configured" instead of failing.
+export function createHistoryDeps(): HistoryDeps {
+  const client = createClient(Deno.env.get("SUPABASE_URL")!, getSecretKey(), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const apiKey = Deno.env.get("ETHERSCAN_API_KEY");
+
+  return {
+    etherscan: apiKey ? createEtherscan(apiKey) : null,
+
+    async getAirdropAddresses() {
+      const { data, error } = await client
+        .from("rounds")
+        .select("airdrop_address")
+        .eq("status", "live")
+        .not("airdrop_address", "is", null);
+      if (error) throw error;
+      return (data ?? []).map((r: { airdrop_address: string }) => r.airdrop_address.toLowerCase());
+    },
+
+    now: () => Date.now(),
   };
 }

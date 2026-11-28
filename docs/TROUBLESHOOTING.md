@@ -68,3 +68,16 @@ Problems already hit during the build, with the cause and the fix.
 | Round claim card: `execution reverted (unknown custom error)` | The claim reaches the token transfer and fails there. Usually the contract holds too little PRM, or its immutable `token` address is wrong. A wrong proof or an already-claimed wallet shows a named message instead | `npm run round:check -- <contract>`. If the token is wrong, redeploy. Anything already sent to that contract is stuck |
 | `balanceOf` through a contract's token returns `0x` | The address has no contract code | The address is mistyped. Compare it with the on-chain value |
 | Registration card shows registration as closed while a test round exists | The card follows the newest non-draft round | Delete the temporary round row |
+
+## Pool stats and history (Phase 5)
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `chain-history` returns `not_configured` | The `ETHERSCAN_API_KEY` function secret is not set | `npx supabase secrets set ETHERSCAN_API_KEY=...`, then redeploy |
+| `history_unavailable` | Etherscan refused or failed: wrong key, the free plan not covering Sepolia, or a rate limit | Check the key and your Etherscan plan. The function logs the Etherscan message (never the key) in the Supabase function logs |
+| Pool card shows fee, liquidity and tick but no volume or swaps | The history service is not set up or unavailable | See the two rows above |
+| Swaps are labelled the wrong way round (bought instead of sold) | The direction comes from the price move, which assumes currency0 is ETH and currency1 is PRM | Check the pool order in `CONTRACTS.md`. If it differs, flip the comparison in `buildPoolActivity` |
+| A swap you made is missing | Etherscan indexing lags a little, and results are cached for 30 seconds | Wait a minute and refresh the card |
+| Wallet history misses ETH-only or approval transactions | It lists PRM transfers and NFT and badge transfers only | By design. Open the wallet on Etherscan for everything |
+| Swap on Uniswap opens the wrong network or no pair | The `chain=sepolia` value in `UNISWAP_SWAP_URL` is not confirmed by Uniswap's docs | Check the URL Uniswap shows after loading, and fix the `chain` value in `src/constants.js` |
+

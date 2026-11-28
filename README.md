@@ -144,7 +144,7 @@ The round close tools (`npm run round:export`) read `SUPABASE_URL` and `SUPABASE
 | `npm run merkle`                            | Rebuild the airdrop Merkle root and proofs from the allowlist |
 | `npm run merkle:nft`                        | Build the NFT allowlist Merkle root and proofs                |
 | `npm run test:functions`                    | Run the Edge Function tests (uses Deno)                       |
-| `npm run test:scripts`                      | Run the round Merkle tree tests                               |
+| `npm run test:scripts`                      | Run the round Merkle tree and formatting tests                |
 | `npm run round:export -- --round 1`         | Round close: build the tree (dry run; add `--write` to store proofs). Needs `.env.admin` |
 | `npm run round:check -- <address> [root]`   | Check a deployed MerkleAirdrop before funding it               |
 | `node scripts/makeMetadata.js <IMAGES_CID>` | Generate the NFT and badge metadata JSON files                |
@@ -198,6 +198,7 @@ supabase/
 │   ├── register/               POST: verify the signature and register a wallet
 │   ├── registration-info/      GET: round details, count and registration status
 │   ├── round-claim/            GET: a wallet's own proof for each live round
+│   ├── chain-history/          GET: pool swap activity and wallet history (Etherscan)
 │   └── _shared/                Shared logic, Supabase client and tests
 └── README.md                   Supabase setup steps
 scripts/
@@ -226,6 +227,8 @@ src/
 │   ├── RoundClaimCard.jsx      Claim cards for live registration rounds
 │   ├── AddTokenButton.jsx      Add PRM to the wallet (wallet_watchAsset) with the logo
 │   ├── DashboardCard.jsx       Wallet summary: balances, claims, registration, NFT, badge
+│   ├── PoolStatsCard.jsx       Pool fee, liquidity, volume, price sparkline, latest swaps
+│   ├── HistoryCard.jsx         Recent PRM, NFT and badge activity of the wallet
 │   └── CopyAddress.jsx         Click-to-copy wallet address
 └── utils/
     ├── allowlist.js            Normalizes addresses into a lookup table
@@ -237,6 +240,9 @@ src/
     ├── registration.js         Sign the message and call the registration functions
     ├── roundClaim.js           Loads a wallet's round claims from the round-claim function
     ├── dashboard.js            Gathers every dashboard value for a wallet (read-only)
+    ├── poolStats.js            Reads fee, tick and liquidity from StateView
+    ├── chainHistory.js         Client for the chain-history function
+    ├── format.js               Time-ago and amount formatting
     └── registrationMessage.js  The exact text a wallet signs (same format as the server)
 ```
 

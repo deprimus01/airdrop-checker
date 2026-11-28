@@ -105,3 +105,26 @@ The pipeline is built and was rehearsed on 28 Nov 2026. Real run, after `closes_
 After the real round the owner can recover leftover PRM with `withdrawRemaining()` from the owner wallet.
 
 Rehearsing again: add a temporary round row with status `live`, then delete it afterwards. While a newer round exists, the registration card follows that newest round (it picks the newest non-draft round), so it shows registration as closed until the row is removed.
+
+## History and pool stats (chain-history function)
+
+The pool stats and recent activity cards use the `chain-history` Edge Function, which reads the Etherscan API. Without it those parts of the cards stay empty or hidden and nothing else breaks.
+
+1. Create a free account at etherscan.io and an API key (Etherscan V2: one key works for every chain, including Sepolia).
+2. Store the key as a function secret. Type it yourself in your own terminal, and never paste it into a chat or a file in the repo:
+   ```bash
+   npx supabase secrets set ETHERSCAN_API_KEY=<your key>
+   ```
+3. Deploy the function (no JWT check, like the others):
+   ```bash
+   npx supabase functions deploy chain-history --no-verify-jwt
+   ```
+4. Check it:
+   ```bash
+   curl "https://yhcnfucoquhjfosgltsh.supabase.co/functions/v1/chain-history?view=pool"
+   curl "https://yhcnfucoquhjfosgltsh.supabase.co/functions/v1/chain-history?view=wallet&address=<a wallet address>"
+   ```
+   The first returns `{"pool":{...}}` with a swap count and volumes. The second returns `{"items":[...]}`. A `not_configured` answer means the secret is missing. `history_unavailable` means Etherscan refused or failed: check the key, the free-plan coverage of Sepolia, and the rate limit.
+
+The function reads the pool ID, PoolManager and token addresses from `supabase/functions/_shared/chain.ts`. A test checks that they match `src/constants.js`, so update both together.
+

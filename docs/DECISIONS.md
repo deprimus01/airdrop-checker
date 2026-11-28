@@ -71,3 +71,11 @@ The original airdrop contract and `merkle.json` stay as a separate "launch" clai
 ## 22. Verify a contract on-chain before funding it
 
 A `MerkleAirdrop` stores its token address as an immutable, and its only recovery function (`withdrawRemaining`) calls that token. If the token address is wrong, nothing sent to the contract can ever be recovered. On 27 Nov 2026 a rehearsal contract was deployed with a mistyped PRM address (one letter, `E` instead of `F`), and 10,000 PRM sent to it is stuck. Rule: copy addresses from `src/constants.js` or from an on-chain read, never retype them from docs, and run `npm run round:check -- <address> <root>` before sending any PRM.
+
+## 23. History and pool activity come from Etherscan through an Edge Function
+
+Public RPCs limit log queries, so wallet history and swap history use the Etherscan V2 API. The browser never calls Etherscan: the `chain-history` Edge Function does, with the API key stored as a Supabase function secret (decision 13 and the no-secrets rule). Responses are cached for 30 seconds to save requests. If the key is missing or Etherscan refuses (for example a plan limit), the cards show "unavailable" and the rest of the app is unaffected.
+
+## 24. Swap direction is read from the price move
+
+For the pool's swap history, buy or sell is decided by whether a swap lowered or raised the pool price relative to the previous swap (starting from the pool's Initialize event), not from the signs of the event amounts. The sign convention of v4 swap amounts is easy to get backwards, while the price move follows directly from the pool maths. Amounts shown are magnitudes. Pool events are fetched by pool ID alone (an indexed topic) and filtered in the function, which avoids Etherscan's topic operator parameters.

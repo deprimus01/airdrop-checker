@@ -20,7 +20,7 @@ The Primus dApp is a testnet portfolio project. A wallet can check airdrop eligi
 | 3 | PrimusNFT allowlist mint and soulbound PrimusBadge | Done, working in the app |
 | 4 | Airdrop registration (Supabase) | Done and live. Round 1 is open until 25 Dec 2026 |
 | 4.5 | Round close pipeline (export script, `round_proofs`, `round-claim` function, round claim card) | Built and rehearsed end to end on Sepolia. The real run happens after Round 1 closes |
-| 5 | Dashboard, swap page, pool stats, transaction history | In progress: dashboard built (5.1). Swap link, pool stats and history still planned |
+| 5 | Dashboard, swap page, pool stats, transaction history | Built, waiting for a test on a real machine: dashboard (5.1, tested), swap link (5.2), pool stats (5.3), wallet history (5.4). See the Phase 5 test checklist below |
 | 6 | Staking and governance | Planned |
 | Polish | Token logo and Add-to-MetaMask button, demo video, custom domain, MetaMask warning report | Logo (`public/prm-logo.png`) and Add-to-MetaMask button built, pending deploy and a wallet test. Demo video, custom domain and MetaMask report still planned |
 
@@ -50,6 +50,25 @@ Built and tested:
 - `scripts/checkAirdrop.js` (`npm run round:check -- <address> [root]`). A read-only check to run before funding a new airdrop contract.
 
 Rehearsal on 28 Nov 2026 (test data, 2 registrations): a temporary `Rehearsal` round row pointed at a throwaway contract. A test wallet claimed 5,000 PRM through the card and Etherscan confirmed the transfer. The temporary row was then deleted. See `CONTRACTS.md` for the two rehearsal contracts. The first one was deployed with a mistyped PRM address and its 10,000 PRM is permanently stuck (see `DECISIONS.md` 22).
+
+## Phase 5 (built 28 Nov 2026)
+
+- **Dashboard** (`DashboardCard`): balances, launch and round airdrop status, registration, NFT and badge. Tested by the owner.
+- **Swap link** (`PriceCard`): a button that opens the Uniswap app on Sepolia with ETH to PRM preselected. The URL parameters come from Uniswap's custom linking docs; the chain name `sepolia` is not confirmed there.
+- **Pool stats** (`PoolStatsCard`): fee, active liquidity and tick read straight from StateView, plus 24 hour and all-time volume, swap counts, a price sparkline and the latest swaps. Volume, sparkline and swaps need the history service.
+- **Wallet history** (`HistoryCard`): recent PRM transfers (classified as airdrop claim, swap, received or sent) and NFT and badge mints.
+- **History service** (`chain-history` Edge Function): reads the Etherscan V2 API (Sepolia is on its chain list). The Etherscan key is a Supabase function secret, never in the browser. 12 Deno tests cover the swap decoding, classification, caching and error handling.
+- Etherscan facts checked in its docs: one endpoint (`api.etherscan.io/v2/api` with `chainid`), Sepolia listed, `getLogs` takes `topic1`, `page` and `offset`. Not confirmed: that the free plan includes Sepolia (the function reports an error instead of breaking if it does not).
+- Not built: a native swap inside the app (needs Universal Router, Permit2 and a quoter), and price history from before the first swap.
+
+### Phase 5 test checklist (not run yet)
+
+1. Swap link: click it on the price card, check that Uniswap opens on Sepolia with ETH and PRM filled in.
+2. History setup: follow "History and pool stats" in `SUPABASE_SETUP.md` (Etherscan key, secret, deploy).
+3. `curl` the function: `?view=pool` and `?view=wallet&address=<a wallet that has claimed>`.
+4. Pool stats card: fee shows 0.25%, liquidity and tick load. Do one small swap on Uniswap, wait a minute and refresh: the card should list it as bought or sold, with the right amounts.
+5. History card: a wallet that claimed shows "Airdrop claim", and minted NFT and badge show their token numbers.
+6. If the pool numbers or buy and sell labels look wrong, see the Phase 5 rows in `TROUBLESHOOTING.md`.
 
 ## What has been verified and what has not
 
